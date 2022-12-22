@@ -97,4 +97,17 @@ async def issue_handler(payload: dict):
                 result += reopen_issue(repo_name, issue_number)
                 result += make_issue_comment(repo_name, issue_number, "标题已经修改，已重新开启 Issue")
                 result += remove_one_issue_label(repo_name, issue_number, "需要更多信息")
+
+    elif action == "labeled":
+        # If label with BUG or 功能, add to project
+        project_trigger_label = ["BUG", "功能", "bug"]
+        new_label = payload["label"]["name"]
+        if new_label in project_trigger_label:
+            print(f"Find {new_label} label, add it to project")
+            org_name = payload["repository"]["owner"]["login"]
+            issue_node_id = payload["issue"]["node_id"]
+            result += add_issue_to_project_board_with_number_and_column_name(org_name=org_name,
+                                                                             issue_node_id=issue_node_id,
+                                                                             project_number=2,
+                                                                             column_name="备忘录")
     return result

@@ -35,11 +35,17 @@ def get_access_token() -> str:
         return access_token
 
 
-def github_request(url: str, method: str, data: dict = None) -> str:
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "Authorization": f"Bearer {get_access_token()}"
-    }
+def github_request(url: str, method: str, data: dict = None, use_personal_token: bool = False) -> str:
+    if use_personal_token is None:
+        headers = {
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {get_access_token()}"
+        }
+    else:
+        headers = {
+            "Authorization": f"Bearer {GITHUB_PERSONAL_TOKEN}"
+        }
+
     if method == "POST":
         response = requests.post(url, headers=headers, json=data).text
     elif method == "GET":
@@ -126,4 +132,53 @@ def reopen_issue(repo_name: str, issue_number: int) -> str:
 def get_issue_with_label(repo_name: str, label: str) -> list:
     url = f"https://api.github.com/repos/{repo_name}/issues?state=all&labels={label}"
     response = json.loads(github_request(url, "GET"))
+    return response
+
+
+def get_project_node_id_by_number(org_name: str, project_number: int) -> str:
+    url = "https://api.github.com/graphql"
+    data = {"query": 'query{organization(login: "%s") {projectV2(number: %s){id}}}' % (org_name, project_number)}
+    response = json.loads(github_request(url, "POST", data, True))
+    try:
+        return response["data"]["organization"]["projectV2"]["id"]
+    except KeyError:
+        return ""
+
+
+def get_project_columns_by_node_id(org_name: str, project_number: int) -> dict:
+    url = "https://api.github.com/graphql"
+    project_node_id = get_project_node_id_by_number(org_name, project_number)
+    data = {
+        "query": 'query{ node(id: "%s") { ... on ProjectV2 { fields(first: 20) { nodes { ... on ProjectV2Field { id '
+                 'name } ... on ProjectV2IterationField { id name configuration { iterations { startDate id }}} ... '
+                 'on ProjectV2SingleSelectField { id name options { id name }}}}}}}' % (
+                     project_node_id)}
+    response = json.loads(github_request(url, "POST", data, True))
+    for item in response["data"]["node"]["fields"]["nodes"]:
+        if item["name"] == "Status":
+            return item
+
+
+def add_issue_to_project_board_with_number_and_column_name(org_name: str, issue_node_id: str, project_number: int,
+                                                           column_name: str = None) -> str:
+    # the column is presented as "option" in the project board by GitHub
+    # so needs to convert the column name to an option ID
+    url = f"https://api.github.com/graphql"
+    project_node_id = get_project_node_id_by_number(org_name, project_number)
+    data = {"query": 'mutation {addProjectV2ItemById(input: {projectId: "%s",contentId: "%s"}) {item {id}}}' % (
+        project_node_id, issue_node_id)}
+    response = json.loads(github_request(url, "POST", data))
+    new_card_id = response["data"]["addProjectV2ItemById"]["item"]["id"]
+    print("response1:", response)
+    if column_name:
+        status = get_project_columns_by_node_id(org_name, project_number)
+        status_field_id = status["id"]
+        options = status["options"]
+        for option in options:
+            if option["name"] == column_name:
+                data = {
+                    "query": 'mutation {updateProjectV2ItemFieldValue (input: { projectId: "%s", itemId: "%s", '
+                             'fieldId: "%s" value: { singleSelectOptionId: "%s" }}) { clientMutationId } }' % (
+                                 project_node_id, new_card_id, status_field_id, option["id"])}
+    response = github_request(url, "POST", data)
     return response

@@ -7,6 +7,8 @@ PRIVATE_KEY = open(PRIVATE_KEY_PATH, "r").read()
 APP_ID = os.getenv('APP_ID')
 # Installation ID
 INSTALLATION_ID = os.getenv('INSTALLATION_ID')
+# GitHub Personal Token
+GITHUB_PERSONAL_TOKEN = os.getenv('GITHUB_PERSONAL_TOKEN')
 
 # Global Variables
 access_token = ""
