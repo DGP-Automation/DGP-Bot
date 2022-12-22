@@ -155,3 +155,4 @@ cython_debug/
 *.pem
 test.py
 dgp_tools.py
+run.sh
