@@ -36,7 +36,7 @@ def get_access_token() -> str:
 
 
 def github_request(url: str, method: str, data: dict = None, use_personal_token: bool = False) -> str:
-    if use_personal_token is None:
+    if use_personal_token is False:
         headers = {
             "Accept": "application/vnd.github+json",
             "Authorization": f"Bearer {get_access_token()}"
@@ -47,18 +47,22 @@ def github_request(url: str, method: str, data: dict = None, use_personal_token:
         }
 
     if method == "POST":
-        response = requests.post(url, headers=headers, json=data).text
+        response = requests.post(url, headers=headers, json=data)
     elif method == "GET":
-        response = requests.get(url, headers=headers).text
+        response = requests.get(url, headers=headers)
     elif method == "DELETE":
-        response = requests.delete(url, headers=headers).text
+        response = requests.delete(url, headers=headers)
     elif method == "PUT":
-        response = requests.put(url, headers=headers, json=data).text
+        response = requests.put(url, headers=headers, json=data)
     elif method == "PATCH":
-        response = requests.patch(url, headers=headers, json=data).text
+        response = requests.patch(url, headers=headers, json=data)
     else:
         response = ""
-    return response
+
+    if response.status_code != 200:
+        print("GitHub request error: ", response.status_code)
+        print(response.text)
+    return response.text
 
 
 def get_issue_comments(repo_name: str, issue_number: int) -> list:
