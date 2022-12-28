@@ -36,7 +36,7 @@ def log_dump(body: str) -> dict:
         print("find device_id: {}".format(device_id))
         log_dict = get_log(device_id)
         if log_dict["data"]:
-            data = f"device_id: {device_id} \n```\n{log_dict['data'][0]['info']}\n```"
+            data = f"device_id: {device_id} \n```\n{log_dict['data']}\n```"
             return {"code": 1, "device_id": device_id, "data": data}
         else:
             data = f"device_id: {device_id} \n无已捕获的错误日志"
