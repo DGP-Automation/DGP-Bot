@@ -10,6 +10,7 @@ CATEGORY_MATCHER = {
     "游戏启动器": "area-GameLauncher",
     "实时便笺": "area-DailyNote",
     "养成计算器": "area-Calculator",
+    "用户面板": "area-UserPanel",
     "文件缓存": "area-FileCache",
     "祈愿记录": "area-Gacha",
     "玩家查询": "area-GameRecord",
