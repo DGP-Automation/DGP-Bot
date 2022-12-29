@@ -58,6 +58,21 @@ def category_tag(body: str) -> str | None:
             return None
 
 
+def app_version_checker(body: str) -> dict:
+    app_version = re.search(r"(Snap Hutao 版本\n\n)(.)+(### 设备 ID)", body)
+    if app_version:
+        app_version = app_version.group(0).replace("Snap Hutao 版本\n\n", "")
+        app_version = app_version.replace("### 设备 ID", "")
+        metadata = json.loads(requests.get("https://api.github.com/repos/DGP-Studio/Snap.Hutao/releases/latest").text)
+        latest_version = metadata["tag_name"]
+        if app_version != latest_version:
+            return {"code": 1, "app_version": app_version, "latest_version": latest_version,
+                    "data":f"请更新至最新版本 {latest_version}"}
+        return {"code": 2, "data": app_version}
+    else:
+        return {"code": 0, "data": "未找到版本号"}
+
+
 async def issue_handler(payload: dict):
     # Check Issue Status
     result = ""
@@ -82,6 +97,13 @@ async def issue_handler(payload: dict):
         if category:
             print(f"Find category tag: {category}, add it")
             result += add_issue_label(repo_name, issue_number, [category])
+        # Check app version
+        app_version_checker_return = app_version_checker(payload["issue"]["body"])
+        if app_version_checker_return["code"] == 1:
+            print("App version outdated")
+            result += make_issue_comment(repo_name, issue_number, app_version_checker_return["data"])
+        else:
+            print("App version check pass")
 
     elif action == "edited":
         # Bad title issue processor
