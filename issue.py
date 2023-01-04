@@ -1,3 +1,5 @@
+import requests
+
 from config import *
 from operater import *
 import re
@@ -37,7 +39,12 @@ def log_dump(body: str) -> dict:
         print("find device_id: {}".format(device_id))
         log_dict = get_log(device_id)
         if log_dict["data"]:
-            data = f"device_id: {device_id} \n```\n{log_dict['data']}\n```"
+            log_data = ""
+            for this_log in log_dict["data"]:
+                this_log_data = this_log["info"].replace(r'\n', '\n').replace(r'\r', '\r')
+                this_log_data = f"\n```\n{this_log_data}\n```\n"
+                log_data += this_log_data
+            data = f"device_id: {device_id} \n{log_data}"
             return {"code": 1, "device_id": device_id, "data": data}
         else:
             data = f"device_id: {device_id} \n无已捕获的错误日志"
@@ -59,15 +66,18 @@ def category_tag(body: str) -> str | None:
 
 
 def app_version_checker(body: str) -> dict:
-    app_version = re.search(r"(Snap Hutao 版本\n\n)(.)+(### 设备 ID)", body)
+    app_version = re.search(r"(Snap Hutao 版本)(\n\n)(.)+(\n\n)(### 设备 ID)", body)
     if app_version:
         app_version = app_version.group(0).replace("Snap Hutao 版本\n\n", "")
         app_version = app_version.replace("### 设备 ID", "")
-        metadata = json.loads(requests.get("https://api.github.com/repos/DGP-Studio/Snap.Hutao/releases/latest").text)
-        latest_version = metadata["tag_name"]
-        if app_version != latest_version:
+        stable_metadata = json.loads(requests.get("https://patcher.dgp-studio.cn/hutao/stable").text)
+        beta_metadata = json.loads(requests.get("https://patcher.dgp-studio.cn/hutao/beta").text)
+        latest_version = [stable_metadata["tag_name"], beta_metadata["tag_name"]]
+        if app_version not in latest_version:
             return {"code": 1, "app_version": app_version, "latest_version": latest_version,
-                    "data":f"请更新至最新版本 {latest_version}"}
+                    "data": f"请更新至最新版本: \n"
+                            f" 稳定版: [{stable_metadata['tag_name']}]({stable_metadata['browser_download_url']}) \n"
+                            f" 测试版: [{beta_metadata['tag_name']}]({beta_metadata['browser_download_url']})"}
         return {"code": 2, "data": app_version}
     else:
         return {"code": 0, "data": "未找到版本号"}
@@ -100,8 +110,9 @@ async def issue_handler(payload: dict):
         # Check app version
         app_version_checker_return = app_version_checker(payload["issue"]["body"])
         if app_version_checker_return["code"] == 1:
-            print("App version outdated")
+            print("App version outdated. Closing issue.")
             result += make_issue_comment(repo_name, issue_number, app_version_checker_return["data"])
+            result += close_issue(repo_name, issue_number, "not_planned")
         else:
             print("App version check pass")
 
