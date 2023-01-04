@@ -59,7 +59,7 @@ def github_request(url: str, method: str, data: dict = None, use_personal_token:
     else:
         response = ""
 
-    if response.status_code != 200:
+    if response.status_code >= 400:
         print("GitHub request error: ", response.status_code)
         print(response.text)
     return response.text
