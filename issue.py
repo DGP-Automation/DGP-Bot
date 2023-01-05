@@ -73,12 +73,13 @@ def app_version_checker(body: str) -> dict:
         stable_metadata = json.loads(requests.get("https://patcher.dgp-studio.cn/hutao/stable").text)
         beta_metadata = json.loads(requests.get("https://patcher.dgp-studio.cn/hutao/beta").text)
         latest_version = [stable_metadata["tag_name"], beta_metadata["tag_name"]]
-        if app_version not in latest_version:
+        if any(app_version.startswith(version) for version in latest_version):
+            return {"code": 2, "data": app_version}
+        else:
             return {"code": 1, "app_version": app_version, "latest_version": latest_version,
                     "data": f"请更新至最新版本: \n"
                             f" 稳定版: [{stable_metadata['tag_name']}]({stable_metadata['browser_download_url']}) \n"
                             f" 测试版: [{beta_metadata['tag_name']}]({beta_metadata['browser_download_url']})"}
-        return {"code": 2, "data": app_version}
     else:
         return {"code": 0, "data": "未找到版本号"}
 
