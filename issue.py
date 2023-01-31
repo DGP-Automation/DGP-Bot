@@ -114,6 +114,7 @@ async def issue_handler(payload: dict):
             print("App version outdated. Closing issue.")
             result += make_issue_comment(repo_name, issue_number, app_version_checker_return["data"])
             result += close_issue(repo_name, issue_number, "not_planned")
+            result += add_issue_label(repo_name, issue_number, ["过时的版本"])
         else:
             print("App version check pass")
 
@@ -121,17 +122,32 @@ async def issue_handler(payload: dict):
         # Bad title issue processor
         had_bad_title = False
         bad_title_fixed_before = False
+        had_legacy_version = False
+        # Get Metadata
         bot_comments = get_bot_comment_in_issue(repo_name, issue_number)
+        issue_labels = get_issue_label(repo_name, issue_number)
+        # Condition Checker
         for bot_comment in bot_comments:
             if "请通过编辑功能设置一个合适的标题" in bot_comment["body"]:
                 had_bad_title = True
             if "标题已经修改" in bot_comment["body"]:
                 bad_title_fixed_before = True
+        if "过时的版本" in issue_labels:
+            had_legacy_version = True
+        # Action
         if had_bad_title and not bad_title_fixed_before:
             if not bad_title_checker(payload["issue"]["title"]):
                 result += reopen_issue(repo_name, issue_number)
-                result += make_issue_comment(repo_name, issue_number, "标题已经修改，已重新开启 Issue")
+                result += make_issue_comment(repo_name, issue_number, "标题已经修改")
                 result += remove_one_issue_label(repo_name, issue_number, "需要更多信息")
+        if had_legacy_version:
+            app_version_checker_return = app_version_checker(payload["issue"]["body"])
+            if app_version_checker_return["code"] != 1:
+                result += remove_one_issue_label(repo_name, issue_number, "过时的版本")
+        # Re-open issue if all conditions are fixed
+        issue_labels = get_issue_label(repo_name, issue_number)
+        if "过时的版本" not in issue_labels and "需要更多信息" not in issue_labels:
+            result += reopen_issue(repo_name, issue_number)
 
     elif action == "labeled":
         # If label with BUG or 功能, add to project
