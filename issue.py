@@ -78,7 +78,7 @@ def app_version_checker(body: str) -> dict:
         else:
             return {"code": 1, "app_version": app_version, "latest_version": latest_version,
                     "data": f"请更新至最新版本: \n"
-                            f" 稳定版: [{stable_metadata['tag_name']}]({stable_metadata['browser_download_url']}) \n"
+                            f" 稳定版: [{stable_metadata['tag_name']}](https://apps.microsoft.com/store/detail/snap-hutao/9PH4NXJ2JN52) \n"
                             f" 测试版: [{beta_metadata['tag_name']}]({beta_metadata['browser_download_url']})"}
     else:
         return {"code": 0, "data": "未找到版本号"}
@@ -123,6 +123,7 @@ async def issue_handler(payload: dict):
         had_bad_title = False
         bad_title_fixed_before = False
         had_legacy_version = False
+        action_made_by_bot = False
         # Get Metadata
         bot_comments = get_bot_comment_in_issue(repo_name, issue_number)
         issue_labels = get_issue_label(repo_name, issue_number)
@@ -140,13 +141,15 @@ async def issue_handler(payload: dict):
                 result += reopen_issue(repo_name, issue_number)
                 result += make_issue_comment(repo_name, issue_number, "标题已经修改")
                 result += remove_one_issue_label(repo_name, issue_number, "需要更多信息")
+                action_made_by_bot = True
         if had_legacy_version:
             app_version_checker_return = app_version_checker(payload["issue"]["body"])
             if app_version_checker_return["code"] != 1:
                 result += remove_one_issue_label(repo_name, issue_number, "过时的版本")
+                action_made_by_bot = True
         # Re-open issue if all conditions are fixed
         issue_labels = get_issue_label(repo_name, issue_number)
-        if "过时的版本" not in issue_labels and "需要更多信息" not in issue_labels:
+        if "过时的版本" not in issue_labels and "需要更多信息" not in issue_labels and action_made_by_bot:
             result += reopen_issue(repo_name, issue_number)
 
     elif action == "labeled":
