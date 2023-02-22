@@ -22,6 +22,11 @@ CATEGORY_MATCHER = {
     "签到": "area-SignIn"
 }
 
+OUTDATED_WINDOWS_VERSION = ["18362", "18363", "19041",
+                            "19042", "19043", "19044",
+                            "1903", "2004", "20H2",
+                            "21H1", "21H2"]
+
 
 def bad_title_checker(title: str):
     bad_title_list = ["合适的标题", "请在这里填写角色名称"]
@@ -84,6 +89,20 @@ def app_version_checker(body: str) -> dict:
         return {"code": 0, "data": "未找到版本号"}
 
 
+def windows_version_checker(body: str) -> dict:
+    windows_version = re.search(r"(Windows 版本)(\n\n)(.)+(\n\n)(### Snap Hutao 版本)", body)
+    if windows_version:
+        windows_version = windows_version.group(0).replace("Windows 版本\n\n", "")
+        windows_version = windows_version.replace("\n\n### Snap Hutao 版本", "")
+        if any(version in windows_version for version in OUTDATED_WINDOWS_VERSION):
+            return {"code": 1, "data": windows_version}
+        else:
+            return {"code": 2, "data": windows_version}
+    else:
+        print("未找到版本号")
+        return {"code": 0, "data": "未找到版本号"}
+
+
 async def issue_handler(payload: dict):
     # Check Issue Status
     result = ""
@@ -108,6 +127,18 @@ async def issue_handler(payload: dict):
         if category:
             print(f"Find category tag: {category}, add it")
             result += add_issue_label(repo_name, issue_number, [category])
+        # Check Windows version
+        windows_version_checker_return = windows_version_checker(payload["issue"]["body"])
+        if windows_version_checker_return["code"] == 1:
+            print("Windows version outdated. Closing issue.")
+            this_issue_comment = windows_version_checker_return["data"] + " 是一个过时的 Windows 版本。 \n## Windows 10 " \
+                                                                          "生命周期\n![image](" \
+                                                                          "https://user-images.githubusercontent.com/10614984/220493442-cad6b7e9-3e06-4184-8e42-950ee8587e11.png)"
+            result += make_issue_comment(repo_name, issue_number, this_issue_comment)
+            result += close_issue(repo_name, issue_number, "not_planned")
+            result += add_issue_label(repo_name, issue_number, ["过时的版本"])
+        else:
+            print("Windows version check pass")
         # Check app version
         app_version_checker_return = app_version_checker(payload["issue"]["body"])
         if app_version_checker_return["code"] == 1:
