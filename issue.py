@@ -131,12 +131,26 @@ async def issue_handler(payload: dict):
         windows_version_checker_return = windows_version_checker(payload["issue"]["body"])
         if windows_version_checker_return["code"] == 1:
             print("Windows version outdated. Closing issue.")
-            this_issue_comment = windows_version_checker_return["data"] + " 是一个过时的 Windows 版本。 \n## Windows 10 " \
+            this_windows_version = windows_version_checker_return["data"]
+            if this_windows_version.startswith("18362"):
+                this_windows_version = "Windows 10 Build 1903"
+            elif this_windows_version.startswith("18363"):
+                this_windows_version = "Windows 10 Build 1909"
+            elif this_windows_version.startswith("19041"):
+                this_windows_version = "Windows 10 Build 2004"
+            elif this_windows_version.startswith("19042"):
+                this_windows_version = "Windows 10 Build 20H2"
+            elif this_windows_version.startswith("19043"):
+                this_windows_version = "Windows 10 Build 21H1"
+            elif this_windows_version.startswith("19044"):
+                this_windows_version = "Windows 10 Build 21H2"
+            this_issue_comment = this_windows_version + " 是一个过时的 Windows 版本。 \n## Windows 10 " \
                                                                           "生命周期\n![image](" \
-                                                                          "https://user-images.githubusercontent.com/10614984/220493442-cad6b7e9-3e06-4184-8e42-950ee8587e11.png)"
+                                                                          "https://user-images.githubusercontent.com/10614984/220493442-cad6b7e9-3e06-4184-8e42-950ee8587e11.png)\n\n" \
+                                                                          "## Snap Hutao 最低系统要求 \n" \
+                                                                          "- Windows 10 Build 19045 (22H2)\n" \
+                                                                          "  - 低于该版本可能会导致程序会有不可预知的错误"
             result += make_issue_comment(repo_name, issue_number, this_issue_comment)
-            result += close_issue(repo_name, issue_number, "not_planned")
-            result += add_issue_label(repo_name, issue_number, ["过时的版本"])
         else:
             print("Windows version check pass")
         # Check app version
