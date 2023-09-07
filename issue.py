@@ -19,7 +19,9 @@ CATEGORY_MATCHER = {
     "胡桃数据库": "area-HutaoAPI",
     "用户界面": "area-UserInterface",
     "公告": "area-Announcement",
-    "签到": "area-SignIn"
+    "签到": "area-SignIn",
+    "胡桃云": "area-HutaoCloud",
+    "胡桃帐号": "area-HutaoAccount"
 }
 
 OUTDATED_WINDOWS_VERSION = ["18362", "18363", "19041",
@@ -145,11 +147,11 @@ async def issue_handler(payload: dict):
             elif this_windows_version.startswith("19044"):
                 this_windows_version = "Windows 10 Build 21H2"
             this_issue_comment = this_windows_version + " 是一个过时的 Windows 版本。 \n## Windows 10 " \
-                                                                          "生命周期\n![image](" \
-                                                                          "https://user-images.githubusercontent.com/10614984/220493442-cad6b7e9-3e06-4184-8e42-950ee8587e11.png)\n\n" \
-                                                                          "## Snap Hutao 最低系统要求 \n" \
-                                                                          "- Windows 10 Build 19045 (22H2)\n" \
-                                                                          "  - 低于该版本可能会导致程序会有不可预知的错误"
+                                                        "生命周期\n![image](" \
+                                                        "https://user-images.githubusercontent.com/10614984/220493442-cad6b7e9-3e06-4184-8e42-950ee8587e11.png)\n\n" \
+                                                        "## Snap Hutao 最低系统要求 \n" \
+                                                        "- Windows 10 Build 19045 (22H2)\n" \
+                                                        "  - 低于该版本可能会导致程序会有不可预知的错误"
             result += make_issue_comment(repo_name, issue_number, this_issue_comment)
         else:
             print("Windows version check pass")
