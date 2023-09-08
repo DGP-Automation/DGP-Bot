@@ -77,8 +77,11 @@ def app_version_checker(body: str) -> dict:
     if app_version:
         app_version = app_version.group(0).replace("Snap Hutao 版本\n\n", "")
         app_version = app_version.replace("### 设备 ID", "")
-        stable_metadata = json.loads(requests.get("https://patcher.dgp-studio.cn/hutao/stable").text)
-        beta_metadata = json.loads(requests.get("https://patcher.dgp-studio.cn/hutao/beta").text)
+        stable_metadata = json.loads(requests.get("https://api.github.com/repos/DGP-Studio/Snap.Hutao/"
+                                                  "releases/latest").text)
+        beta_metadata = [release for release in json.loads(requests.get("https://api.github.com"
+                                                                        "/repos/DGP-Studio/Snap.Hutao/releases").text)
+                         if release["prerelease"]][0]
         latest_version = [stable_metadata["tag_name"], beta_metadata["tag_name"]]
         if any(app_version.startswith(version) for version in latest_version):
             return {"code": 2, "data": app_version}
@@ -86,7 +89,7 @@ def app_version_checker(body: str) -> dict:
             return {"code": 1, "app_version": app_version, "latest_version": latest_version,
                     "data": f"请更新至最新版本: \n"
                             f" 稳定版: [{stable_metadata['tag_name']}](https://apps.microsoft.com/store/detail/snap-hutao/9PH4NXJ2JN52) \n"
-                            f" 测试版: [{beta_metadata['tag_name']}]({beta_metadata['browser_download_url']})"}
+                            f" 测试版: [{beta_metadata['tag_name']}]({beta_metadata['assets'][0]['browser_download_url']})"}
     else:
         return {"code": 0, "data": "未找到版本号"}
 
