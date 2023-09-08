@@ -1,4 +1,7 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Private Key
 PRIVATE_KEY_PATH = os.getenv('PRIVATE_KEY_PATH')
