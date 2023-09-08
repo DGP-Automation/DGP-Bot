@@ -48,7 +48,7 @@ def log_dump(body: str) -> dict:
         if log_dict["data"]:
             log_data = ""
             for this_log in log_dict["data"]:
-                this_log_data = this_log["info"].replace(r'\n', '\n').replace(r'\r', '\r')
+                this_log_data = this_log["Info"].replace(r'\n', '\n').replace(r'\r', '\r')
                 this_log_data = f"\n```\n{this_log_data}\n```\n"
                 log_data += this_log_data
             data = f"device_id: {device_id} \n{log_data}"
