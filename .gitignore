@@ -154,5 +154,3 @@ cython_debug/
 .idea/
 *.pem
 test.py
-dgp_tools.py
-run.sh
