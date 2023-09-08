@@ -4,8 +4,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Private Key
-PRIVATE_KEY_PATH = os.getenv('PRIVATE_KEY_PATH')
-PRIVATE_KEY = open(PRIVATE_KEY_PATH, "r").read()
+PRIVATE_KEY = os.getenv('PRIVATE_KEY')
+if PRIVATE_KEY is None:
+    PRIVATE_KEY_PATH = os.getenv('PRIVATE_KEY_PATH')
+    PRIVATE_KEY = open(PRIVATE_KEY_PATH, "r").read()
 # App ID
 APP_ID = os.getenv('APP_ID')
 # Installation ID

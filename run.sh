@@ -3,7 +3,7 @@ imageName=dgp-github-bot
 containerName=DGP-GitHub-Bot
 imageVersion=1.9
 externalPort=3524
-internalPort=8080
+internalPort=8000
 
 oldContainer=`docker ps -a| grep ${containerName} | head -1|awk '{print $1}' `
 echo Delete old container...

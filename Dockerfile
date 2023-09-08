@@ -4,6 +4,7 @@ FROM python:3.11 AS builder
 WORKDIR /code
 ADD . /code
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+RUN pip install pyinstaller
 RUN pyinstaller -F main.py
 
 # Runtime
