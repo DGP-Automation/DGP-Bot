@@ -192,3 +192,13 @@ def get_issue_node_id(repo_name: str, issue_number: int) -> str:
     url = f"https://api.github.com/repos/{repo_name}/issues/{issue_number}"
     response = json.loads(github_request(url, "GET"))
     return response["node_id"]
+
+
+def get_issue_language(repo_name: str, issue_number: int) -> str:
+    url = f"https://api.github.com/repos/{repo_name}/issues/{issue_number}"
+    response = json.loads(github_request(url, "GET"))
+    issue_title = response["title"]
+    if r"[ENG]" in issue_title:
+        return "ENG"
+    else:
+        return "CHS"

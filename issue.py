@@ -1,6 +1,3 @@
-import requests
-
-from config import *
 from operater import *
 import re
 from dgp_tools import *
@@ -24,6 +21,25 @@ CATEGORY_MATCHER = {
     "胡桃帐号": "area-HutaoAccount"
 }
 
+CATEGORY_MATCHER_ENG = {
+    "Installation and Environment": "area-LifeCycle",
+    "Achievement": "area-Achievement",
+    "My Character": "area-AvatarInfo",
+    "Game Launcher": "area-GameLauncher",
+    "Realtime Note": "area-DailyNote",
+    "Develop Plan": "area-Calculator",
+    "User Panel": "area-UserPanel",
+    "File Cache": "area-FileCache",
+    "Wish Export": "area-Gacha",
+    "Game Record": "area-GameRecord",
+    "Hutao Database": "area-HutaoAPI",
+    "User Interface": "area-UserInterface",
+    "Announcement": "area-Announcement",
+    "Checkin": "area-SignIn",
+    "Snap Hutao Cloud": "area-HutaoCloud",
+    "Snap Hutao Account": "area-HutaoAccount"
+}
+
 OUTDATED_WINDOWS_VERSION = ["18362", "18363", "19041",
                             "19042", "19043", "19044",
                             "1903", "2004", "20H2",
@@ -31,7 +47,7 @@ OUTDATED_WINDOWS_VERSION = ["18362", "18363", "19041",
 
 
 def bad_title_checker(title: str):
-    bad_title_list = ["合适的标题", "请在这里填写角色名称"]
+    bad_title_list = ["合适的标题", "请在这里填写角色名称", "Issue Title Here"]
     for bad_title in bad_title_list:
         if bad_title in title:
             return True
@@ -39,9 +55,17 @@ def bad_title_checker(title: str):
 
 
 def log_dump(body: str) -> dict:
+    is_eng = False
     device_id = re.search(r"(设备 ID\n\n)(\w|\d){32}(\n\n)", body)
+    if not device_id:
+        device_id = re.search(r"(Device ID\n\n)(\w|\d){32}(\n\n)", body)
+        if device_id:
+            is_eng = True
     if device_id:
-        device_id = device_id.group(0).replace("设备 ID\n\n", "")
+        if is_eng:
+            device_id = device_id.group(0).replace("Device ID\n\n", "")
+        else:
+            device_id = device_id.group(0).replace("设备 ID\n\n", "")
         device_id = device_id.replace("\n\n", "")
         print("find device_id: {}".format(device_id))
         log_dict = get_log(device_id)
@@ -54,17 +78,27 @@ def log_dump(body: str) -> dict:
             data = f"device_id: {device_id} \n{log_data}"
             return {"code": 1, "device_id": device_id, "data": data}
         else:
-            data = f"device_id: {device_id} \n无已捕获的错误日志"
-            data = f"{data}"
+            if is_eng:
+                data = f"device_id: {device_id} \nNo captured error log"
+            else:
+                data = f"device_id: {device_id} \n无已捕获的错误日志"
             return {"code": 2, "device_id": device_id, "data": data}
     else:
         return {"code": 0, "device_id": None, "data": "未找到设备 ID"}
 
 
 def category_tag(body: str) -> str | None:
-    category_str = re.search(r"(问题分类\n\n)(.){2,8}(\n\n)", body)
+    is_eng = False
+    category_str = re.search(r"(问题分类\n\n)(.*?)(\n\n)", body)
+    if not category_str:
+        category_str = re.search(r"(Issue Category\n\n)(.*?)(\n\n)", body)
+        if category_str:
+            is_eng = True
     if category_str:
-        category_str = category_str.group(0).replace("问题分类\n\n", "")
+        if is_eng:
+            category_str = category_str.group(0).replace("Issue Category\n\n", "")
+        else:
+            category_str = category_str.group(0).replace("问题分类\n\n", "")
         category_str = category_str.replace("\n\n", "")
         try:
             return CATEGORY_MATCHER[category_str]
@@ -73,10 +107,19 @@ def category_tag(body: str) -> str | None:
 
 
 def app_version_checker(body: str) -> dict:
+    is_eng = False
     app_version = re.search(r"(Snap Hutao 版本)(\n\n)(.)+(\n\n)(### 设备 ID)", body)
+    if not app_version:
+        app_version = re.search(r"(Snap Hutao Version)(\n\n)(.)+(\n\n)(### Device ID)", body)
+        if app_version:
+            is_eng = True
     if app_version:
-        app_version = app_version.group(0).replace("Snap Hutao 版本\n\n", "")
-        app_version = app_version.replace("### 设备 ID", "")
+        if is_eng:
+            app_version = app_version.group(0).replace("Snap Hutao Version\n\n", "")
+            app_version = app_version.replace("### Device ID", "")
+        else:
+            app_version = app_version.group(0).replace("Snap Hutao 版本\n\n", "")
+            app_version = app_version.replace("### 设备 ID", "")
         stable_metadata = json.loads(requests.get("https://api.github.com/repos/DGP-Studio/Snap.Hutao/"
                                                   "releases/latest").text)
         beta_metadata = [release for release in json.loads(requests.get("https://api.github.com"
@@ -86,40 +129,62 @@ def app_version_checker(body: str) -> dict:
         if any(app_version.startswith(version) for version in latest_version):
             return {"code": 2, "data": app_version}
         else:
-            return {"code": 1, "app_version": app_version, "latest_version": latest_version,
-                    "data": f"请更新至最新版本: \n"
-                            f" 稳定版: [{stable_metadata['tag_name']}](https://apps.microsoft.com/store/detail/snap-hutao/9PH4NXJ2JN52) \n"
-                            f" 测试版: [{beta_metadata['tag_name']}]({beta_metadata['assets'][0]['browser_download_url']})"}
+            if is_eng:
+                return {"code": 1, "app_version": app_version, "latest_version": latest_version,
+                        "data": f"Please update to the latest version: \n"
+                                f" Stable: [{stable_metadata['tag_name']}](https://apps.microsoft.com/store/detail/snap-hutao/9PH4NXJ2JN52) \n"
+                                f" Beta: [{beta_metadata['tag_name']}]({beta_metadata['assets'][0]['browser_download_url']})"}
+            else:
+                return {"code": 1, "app_version": app_version, "latest_version": latest_version,
+                        "data": f"请更新至最新版本: \n"
+                                f" 稳定版: [{stable_metadata['tag_name']}](https://apps.microsoft.com/store/detail/snap-hutao/9PH4NXJ2JN52) \n"
+                                f" 测试版: [{beta_metadata['tag_name']}]({beta_metadata['assets'][0]['browser_download_url']})"}
     else:
         return {"code": 0, "data": "未找到版本号"}
 
 
 def windows_version_checker(body: str) -> dict:
+    is_eng = False
     windows_version = re.search(r"(Windows 版本)(\n\n)(.)+(\n\n)(### Snap Hutao 版本)", body)
+    if not windows_version:
+        windows_version = re.search(r"(Windows Version)(\n\n)(.)+(\n\n)(### Snap Hutao Version)", body)
+        if windows_version:
+            is_eng = True
     if windows_version:
-        windows_version = windows_version.group(0).replace("Windows 版本\n\n", "")
-        windows_version = windows_version.replace("\n\n### Snap Hutao 版本", "")
+        if is_eng:
+            windows_version = windows_version.group(0).replace("Windows Version\n\n", "")
+            windows_version = windows_version.replace("\n\n### Snap Hutao Version", "")
+        else:
+            windows_version = windows_version.group(0).replace("Windows 版本\n\n", "")
+            windows_version = windows_version.replace("\n\n### Snap Hutao 版本", "")
         if any(version in windows_version for version in OUTDATED_WINDOWS_VERSION):
             return {"code": 1, "data": windows_version}
         else:
             return {"code": 2, "data": windows_version}
     else:
-        print("未找到版本号")
         return {"code": 0, "data": "未找到版本号"}
 
 
 async def issue_handler(payload: dict):
     # Check Issue Status
     result = ""
+    is_eng = False
     action = payload["action"]
     issue_number = payload["issue"]["number"]
     repo_name = payload["repository"]["full_name"]
     sender_name = payload["sender"]["login"]
+    issue_title = payload["issue"]["title"]
+    if r"[ENG]" in issue_title:
+        is_eng = True
     if action == "opened":
         # Bad title issue processor
-        if bad_title_checker(payload["issue"]["title"]):
+        if bad_title_checker(issue_title):
             print("Bad title issue found")
-            result += make_issue_comment(repo_name, issue_number, f"@{sender_name} 请通过编辑功能设置一个合适的标题")
+            if is_eng:
+                result += make_issue_comment(repo_name, issue_number, f"@{sender_name} Please edit the issue is set a "
+                                                                      f"proper title")
+            else:
+                result += make_issue_comment(repo_name, issue_number, f"@{sender_name} 请通过编辑功能设置一个合适的标题")
             result += close_issue(repo_name, issue_number, "not_planned")
             result += add_issue_label(repo_name, issue_number, ["需要更多信息"])
         # Log dump issue processor
@@ -149,12 +214,20 @@ async def issue_handler(payload: dict):
                 this_windows_version = "Windows 10 Build 21H1"
             elif this_windows_version.startswith("19044"):
                 this_windows_version = "Windows 10 Build 21H2"
-            this_issue_comment = this_windows_version + " 是一个过时的 Windows 版本。 \n## Windows 10 " \
-                                                        "生命周期\n![image](" \
-                                                        "https://user-images.githubusercontent.com/10614984/220493442-cad6b7e9-3e06-4184-8e42-950ee8587e11.png)\n\n" \
-                                                        "## Snap Hutao 最低系统要求 \n" \
-                                                        "- Windows 10 Build 19045 (22H2)\n" \
-                                                        "  - 低于该版本可能会导致程序会有不可预知的错误"
+            if is_eng:
+                this_issue_comment = this_windows_version + " is an outdated Windows version. \n## Windows 10 " \
+                                                            "Lifecycle\n![image](" \
+                                                            "https://user-images.githubusercontent.com/10614984/220493442-cad6b7e9-3e06-4184-8e42-950ee8587e11.png)\n\n" \
+                                                            "## Snap Hutao Minimum System Requirement \n" \
+                                                            "- Windows 10 Build 19045 (22H2)\n" \
+                                                            "  - Lower version may cause unexpected error"
+            else:
+                this_issue_comment = this_windows_version + " 是一个过时的 Windows 版本。 \n## Windows 10 " \
+                                                            "生命周期\n![image](" \
+                                                            "https://user-images.githubusercontent.com/10614984/220493442-cad6b7e9-3e06-4184-8e42-950ee8587e11.png)\n\n" \
+                                                            "## Snap Hutao 最低系统要求 \n" \
+                                                            "- Windows 10 Build 19045 (22H2)\n" \
+                                                            "  - 低于该版本可能会导致程序会有不可预知的错误"
             result += make_issue_comment(repo_name, issue_number, this_issue_comment)
         else:
             print("Windows version check pass")
@@ -179,9 +252,9 @@ async def issue_handler(payload: dict):
         issue_labels = get_issue_label(repo_name, issue_number)
         # Condition Checker
         for bot_comment in bot_comments:
-            if "请通过编辑功能设置一个合适的标题" in bot_comment["body"]:
+            if "请通过编辑功能设置一个合适的标题" in bot_comment["body"] or "Please edit the issue is set a proper title" in bot_comment["body"]:
                 had_bad_title = True
-            if "标题已经修改" in bot_comment["body"]:
+            if "标题已经修改" in bot_comment["body"] or "Title is fixed" in bot_comment["body"]:
                 bad_title_fixed_before = True
         if "过时的版本" in issue_labels:
             had_legacy_version = True
@@ -189,7 +262,10 @@ async def issue_handler(payload: dict):
         if had_bad_title and not bad_title_fixed_before:
             if not bad_title_checker(payload["issue"]["title"]):
                 result += reopen_issue(repo_name, issue_number)
-                result += make_issue_comment(repo_name, issue_number, "标题已经修改")
+                if is_eng:
+                    result += make_issue_comment(repo_name, issue_number, "Title is fixed")
+                else:
+                    result += make_issue_comment(repo_name, issue_number, "标题已经修改")
                 result += remove_one_issue_label(repo_name, issue_number, "需要更多信息")
                 action_made_by_bot = True
         if had_legacy_version:

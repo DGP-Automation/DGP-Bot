@@ -1,4 +1,4 @@
-from operater import get_issue_with_label, make_issue_comment, remove_one_issue_label
+from operater import get_issue_with_label, make_issue_comment, remove_one_issue_label, get_issue_language
 
 
 async def notify_issuers(repo_name: str, release_name: str, html_url: str) -> str:
@@ -6,9 +6,18 @@ async def notify_issuers(repo_name: str, release_name: str, html_url: str) -> st
     all_ready_issue = get_issue_with_label(repo_name, "等待发布")
     for issue in all_ready_issue:
         issue_number = issue["number"]
-        return_result += make_issue_comment(
-            repo_name, issue_number, f"包含解决该问题的程序版本 {release_name} 已发布，[点击查看]({html_url})"
-        )
+        issue_language = get_issue_language(repo_name, issue_number)
+        if issue_language == "CHS":
+            return_result += make_issue_comment(
+                repo_name, issue_number, f"包含解决该问题的程序版本 {release_name} 已发布，[点击查看]({html_url})"
+            )
+        elif issue_language == "ENG":
+            return_result += make_issue_comment(
+                repo_name, issue_number, f"Program version {release_name} which contains the solution has been "
+                                         f"released, [click to view]({html_url})"
+            )
+        else:
+            pass
         return_result += remove_one_issue_label(repo_name, issue_number, "等待发布")
 
     return return_result
