@@ -186,3 +186,9 @@ def add_issue_to_project_board_with_number_and_column_name(org_name: str, issue_
                                  project_node_id, new_card_id, status_field_id, option["id"])}
     response = github_request(url, "POST", data)
     return response
+
+
+def get_issue_node_id(repo_name: str, issue_number: int) -> str:
+    url = f"https://api.github.com/repos/{repo_name}/issues/{issue_number}"
+    response = json.loads(github_request(url, "GET"))
+    return response["node_id"]
