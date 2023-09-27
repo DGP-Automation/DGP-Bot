@@ -24,7 +24,7 @@ async def comment_handler(payload: dict) -> str:
         if len(comment_body) == 3:
             dumped_log = get_log(comment_body[2])
             if dumped_log["data"]:
-                data = f"device_id: {comment_body[2]} \n```\n{dumped_log['data'][0]['info']}\n```"
+                data = f"device_id: {comment_body[2]} \n```\n{dumped_log['data'][0]['Info']}\n```"
                 return_result += make_issue_comment(repo_name, issue_number, data)
             else:
                 return_result += make_issue_comment(repo_name, issue_number, "空日志")
