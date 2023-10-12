@@ -202,3 +202,44 @@ def get_issue_language(repo_name: str, issue_number: int) -> str:
         return "ENG"
     else:
         return "CHS"
+
+
+def lock_issue_conversation(repo_name: str, issue_number: int, lock_reason: str = None) -> str:
+    url = f"https://api.github.com/repos/{repo_name}/issues/{issue_number}/lock"
+    if lock_reason is None:
+        response = github_request(url, "PUT")
+    else:
+        response = github_request(url, "PUT", data={"lock_reason": lock_reason})
+    return response
+
+
+def unlock_issue_conversation(repo_name: str, issue_number: int) -> str:
+    url = f"https://api.github.com/repos/{repo_name}/issues/{issue_number}/lock"
+    response = github_request(url, "DELETE")
+    return response
+
+
+def hide_issue_comment(comment_node_id: int, reason: str) -> str:
+    url = "https://api.github.com/graphql"
+    query = '''
+    mutation MinimizeComment($input: MinimizeCommentInput!) {
+      minimizeComment(input: $input) {
+        minimizedComment {
+          isMinimized
+        }
+      }
+    }
+    '''
+    variables = {
+        'input': {
+            'subjectId': comment_node_id,
+            'classifier': reason.upper()
+        }
+    }
+    data = {
+        'query': query,
+        'variables': variables
+    }
+    response = github_request(url, "POST", data, True)
+    print("Hide comment response:", response)
+    return response

@@ -46,7 +46,7 @@ OUTDATED_WINDOWS_VERSION = ["18362", "18363", "19041",
                             "21H1", "21H2"]
 
 
-def bad_title_checker(title: str):
+def bad_title_checker(title: str) -> bool:
     bad_title_list = ["合适的标题", "请在这里填写角色名称", "Issue Title Here"]
     for bad_title in bad_title_list:
         if bad_title in title:
@@ -187,6 +187,7 @@ async def issue_handler(payload: dict):
                 result += make_issue_comment(repo_name, issue_number, f"@{sender_name} 请通过编辑功能设置一个合适的标题")
             result += close_issue(repo_name, issue_number, "not_planned")
             result += add_issue_label(repo_name, issue_number, ["需要更多信息"])
+            result += lock_issue_conversation(repo_name, issue_number)
         # Log dump issue processor
         dumped_log = log_dump(payload["issue"]["body"])
         if dumped_log["code"] != 0:
@@ -261,12 +262,18 @@ async def issue_handler(payload: dict):
         # Action
         if had_bad_title and not bad_title_fixed_before:
             if not bad_title_checker(payload["issue"]["title"]):
+                result += unlock_issue_conversation(repo_name, issue_number)
                 result += reopen_issue(repo_name, issue_number)
                 if is_eng:
                     result += make_issue_comment(repo_name, issue_number, "Title is fixed")
                 else:
                     result += make_issue_comment(repo_name, issue_number, "标题已经修改")
                 result += remove_one_issue_label(repo_name, issue_number, "需要更多信息")
+                previous_bot_comments = get_bot_comment_in_issue(repo_name, issue_number)
+                for comment in previous_bot_comments:
+                    if ("请通过编辑功能设置一个合适的标题" in comment["body"] or
+                            "Please edit the issue is set a proper title" in comment["body"]):
+                        result += hide_issue_comment(comment["node_id"], "OUTDATED")
                 action_made_by_bot = True
         if had_legacy_version:
             app_version_checker_return = app_version_checker(payload["issue"]["body"])
