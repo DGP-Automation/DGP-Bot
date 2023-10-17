@@ -173,7 +173,6 @@ def add_issue_to_project_board_with_number_and_column_name(org_name: str, issue_
         project_node_id, issue_node_id)}
     response = json.loads(github_request(url, "POST", data))
     new_card_id = response["data"]["addProjectV2ItemById"]["item"]["id"]
-    print("response1:", response)
     if column_name:
         status = get_project_columns_by_node_id(org_name, project_number)
         status_field_id = status["id"]
