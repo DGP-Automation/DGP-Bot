@@ -187,7 +187,7 @@ async def issue_handler(payload: dict):
                 result += make_issue_comment(repo_name, issue_number, f"@{sender_name} 请通过编辑功能设置一个合适的标题")
             result += close_issue(repo_name, issue_number, "not_planned")
             result += add_issue_label(repo_name, issue_number, ["需要更多信息"])
-            result += lock_issue_conversation(repo_name, issue_number)
+            #result += lock_issue_conversation(repo_name, issue_number)
         # Log dump issue processor
         dumped_log = log_dump(payload["issue"]["body"])
         if dumped_log["code"] != 0:
@@ -270,7 +270,7 @@ async def issue_handler(payload: dict):
         # Action
         if had_bad_title and not bad_title_fixed_before:
             if not bad_title_checker(payload["issue"]["title"]):
-                result += unlock_issue_conversation(repo_name, issue_number)
+                #result += unlock_issue_conversation(repo_name, issue_number)
                 result += reopen_issue(repo_name, issue_number)
                 if is_eng:
                     result += make_issue_comment(repo_name, issue_number, "Title is fixed")
@@ -281,6 +281,8 @@ async def issue_handler(payload: dict):
                 for comment in previous_bot_comments:
                     if ("请通过编辑功能设置一个合适的标题" in comment["body"] or
                             "Please edit the issue is set a proper title" in comment["body"]):
+                        result += hide_issue_comment(comment["node_id"], "OUTDATED")
+                    if "标题已修改" in comment["body"] or "Title is fixed" in comment["body"]:
                         result += hide_issue_comment(comment["node_id"], "OUTDATED")
                 action_made_by_bot = True
         if had_legacy_version:
