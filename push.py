@@ -1,8 +1,7 @@
 import re
 from operater import (make_issue_comment, add_issue_label, get_issue_label, get_issue_node_id, get_issue_language,
                       add_issue_to_project_board_with_number_and_column_name, remove_one_issue_label)
-
-LABEL_TO_BE_REMOVED_ON_CLOSING = ["priority:high", "priority:low", "priority:medium", "需要社区帮助"]
+from config import LABEL_TO_BE_REMOVED_ON_CLOSING
 
 
 async def find_fixed_issue(repo_name: str, commit_id: str, message: str) -> str:
