@@ -18,7 +18,8 @@ GITHUB_PERSONAL_TOKEN = os.getenv('GITHUB_PERSONAL_TOKEN')
 # Global Variables
 access_token = ""
 access_token_generated_time = 0
-LABEL_TO_BE_REMOVED_ON_CLOSING = ["priority:high", "priority:low", "priority:medium", "需要社区帮助", "priority:none"]
+LABEL_TO_BE_REMOVED_ON_CLOSING = ["priority:high", "priority:low", "priority:medium", "需要社区帮助", "priority:none",
+                                  "need-triage"]
 OUTDATED_WINDOWS_VERSION = ["18362", "18363", "19041",
                             "19042", "19043", "19044",
                             "1903", "2004", "20H2",
@@ -39,7 +40,7 @@ CATEGORY_MATCHER = {
     "公告": "area-Announcement",
     "签到": "area-SignIn",
     "胡桃云": "area-HutaoCloud",
-    "胡桃帐号": "area-HutaoAccount"
+    "胡桃帐号": "area-Passport"
 }
 
 CATEGORY_MATCHER_ENG = {
@@ -58,5 +59,5 @@ CATEGORY_MATCHER_ENG = {
     "Announcement": "area-Announcement",
     "Checkin": "area-SignIn",
     "Snap Hutao Cloud": "area-HutaoCloud",
-    "Snap Hutao Account": "area-HutaoAccount"
+    "Snap Hutao Account": "area-Passport"
 }

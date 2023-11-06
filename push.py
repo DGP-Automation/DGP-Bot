@@ -21,7 +21,7 @@ async def find_fixed_issue(repo_name: str, commit_id: str, message: str) -> str:
                 print(f"Issue {issue_number} already fixed, skip")
                 continue
             is_bug = True if "BUG" in current_issue_labels else False
-            is_feat = True if "Feat" in current_issue_labels else False
+            is_feat = True if "功能" in current_issue_labels else False
             issue_language = get_issue_language(repo_name, issue_number)
             if issue_language == "CHS":
                 if is_bug:
