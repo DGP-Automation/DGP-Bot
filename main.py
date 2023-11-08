@@ -3,6 +3,7 @@ from issue import issue_handler
 from push import push_handler
 from release import release_handler
 from issue_comment import comment_handler
+from private_endpoints import private_send_issue_comment
 import uvicorn
 
 app = FastAPI(docs_url=None, redoc_url=None)
@@ -32,6 +33,18 @@ async def payload(request: Request):
         result = await comment_handler(request_payload)
     else:
         print("Unknown hook type")
+
+    return {"message": str(result)}
+
+
+@app.post("/private")
+async def private_send(request: Request):
+    result = None
+    request_payload = await request.json()
+    hook_type = request_payload["type"]
+
+    if hook_type == "send_issue_comment":
+        result = await private_send_issue_comment(request_payload["data"])
 
     return {"message": str(result)}
 
