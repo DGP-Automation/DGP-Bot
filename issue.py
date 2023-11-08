@@ -138,6 +138,15 @@ async def issue_handler(payload: dict):
     if r"[ENG]" in issue_title:
         is_eng = True
     if action == "opened":
+        current_issue_labels = get_issue_label(repo_name, issue_number)
+        # Publish Checker
+        if "[Publish]" in issue_title and "Publish" in current_issue_labels:
+            author_association = payload["issue"]["author_association"]
+            if author_association.lower() not in ["member", "owner"]:
+                result += close_issue(repo_name, issue_number, "not_planned")
+                result += block_user_from_organization(payload["repository"]["owner"]["login"], sender_name)
+            return result
+
         # Bad title issue processor
         if bad_title_checker(issue_title):
             print("Bad title issue found")

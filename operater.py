@@ -242,3 +242,9 @@ def hide_issue_comment(comment_node_id: int, reason: str) -> str:
     response = github_request(url, "POST", data, True)
     print("Hide comment response:", response)
     return response
+
+
+def block_user_from_organization(org_name: str, username: str) -> str:
+    url = f"https://api.github.com/orgs/{org_name}/blocks/{username}"
+    response = github_request(url, "PUT")
+    return response
