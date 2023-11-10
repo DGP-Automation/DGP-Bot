@@ -3,7 +3,7 @@ from issue import issue_handler
 from push import push_handler
 from release import release_handler
 from issue_comment import comment_handler
-from private_endpoints import private_send_issue_comment
+from private_endpoints import private_send_issue_comment, add_discord_message, get_discord_message
 import uvicorn
 
 app = FastAPI(docs_url=None, redoc_url=None)
@@ -45,6 +45,10 @@ async def private_send(request: Request):
 
     if hook_type == "send_issue_comment":
         result = await private_send_issue_comment(request_payload["data"])
+    elif hook_type == "add_discord_message":
+        result = await add_discord_message(request_payload["data"])
+    elif hook_type == "get_discord_message":
+        result = await get_discord_message()
 
     return {"message": str(result)}
 
