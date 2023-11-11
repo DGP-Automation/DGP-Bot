@@ -145,7 +145,23 @@ async def issue_handler(payload: dict):
             if author_association.lower() not in ["member", "owner"]:
                 result += close_issue(repo_name, issue_number, "not_planned")
                 result += block_user_from_organization(payload["repository"]["owner"]["login"], sender_name)
-            return result
+                return result
+            else:
+                # Start pre-publish process
+                print("Publish issue found")
+                upcoming_version_number = re.search(r"(?<=\[Publish]: Version )(?P<V>\d+\.\d+\.\d+)", issue_title)
+                upcoming_version_number = upcoming_version_number.group("V")
+                print("Upcoming version number: ", upcoming_version_number)
+                new_ms_return = create_new_milestone(repo_name, upcoming_version_number,
+                                                     f"milestone for version {upcoming_version_number}")
+                new_ms_number = json.loads(new_ms_return)["number"]
+                print("New milestone created, number: ", new_ms_number)
+                publishing_issues = get_issue_with_label(repo_name, "等待发布")
+                print(f"{len(publishing_issues)} publishing issues found, start processing")
+                for issue in publishing_issues:
+                    this_issue_number = issue["number"]
+                    result += update_issue_milestone(repo_name, this_issue_number, new_ms_number)
+                update_issue_milestone(repo_name, issue_number, new_ms_number)
 
         # Bad title issue processor
         if bad_title_checker(issue_title):
@@ -154,10 +170,11 @@ async def issue_handler(payload: dict):
                 result += make_issue_comment(repo_name, issue_number, f"@{sender_name} Please edit the issue is set a "
                                                                       f"proper title")
             else:
-                result += make_issue_comment(repo_name, issue_number, f"@{sender_name} 请通过编辑功能设置一个合适的标题")
+                result += make_issue_comment(repo_name, issue_number,
+                                             f"@{sender_name} 请通过编辑功能设置一个合适的标题")
             result += close_issue(repo_name, issue_number, "not_planned")
             result += add_issue_label(repo_name, issue_number, ["需要更多信息"])
-            #result += lock_issue_conversation(repo_name, issue_number)
+            # result += lock_issue_conversation(repo_name, issue_number)
         # Log dump issue processor
         dumped_log = log_dump(payload["issue"]["body"])
         if dumped_log["code"] != 0:
@@ -231,7 +248,8 @@ async def issue_handler(payload: dict):
         issue_labels = get_issue_label(repo_name, issue_number)
         # Condition Checker
         for bot_comment in bot_comments:
-            if "请通过编辑功能设置一个合适的标题" in bot_comment["body"] or "Please edit the issue is set a proper title" in bot_comment["body"]:
+            if ("请通过编辑功能设置一个合适的标题" in bot_comment["body"] or "Please edit the issue is set a proper title"
+                    in bot_comment["body"]):
                 had_bad_title = True
             if "标题已经修改" in bot_comment["body"] or "Title is fixed" in bot_comment["body"]:
                 bad_title_fixed_before = True
@@ -240,7 +258,7 @@ async def issue_handler(payload: dict):
         # Action
         if had_bad_title and not bad_title_fixed_before:
             if not bad_title_checker(payload["issue"]["title"]):
-                #result += unlock_issue_conversation(repo_name, issue_number)
+                # result += unlock_issue_conversation(repo_name, issue_number)
                 result += reopen_issue(repo_name, issue_number)
                 if is_eng:
                     result += make_issue_comment(repo_name, issue_number, "Title is fixed")

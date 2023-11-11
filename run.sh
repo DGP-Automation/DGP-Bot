@@ -1,7 +1,7 @@
 # Docker Image Settings
 imageName=dgp-github-bot
 containerName=DGP-GitHub-Bot
-imageVersion=1.11
+imageVersion=1.12
 externalPort=3524
 internalPort=8000
 

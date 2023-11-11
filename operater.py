@@ -248,3 +248,29 @@ def block_user_from_organization(org_name: str, username: str) -> str:
     url = f"https://api.github.com/orgs/{org_name}/blocks/{username}"
     response = github_request(url, "PUT")
     return response
+
+
+def create_new_milestone(repo_name: str, milestone_name: str, desc: str = None) -> str:
+    url = f"https://api.github.com/repos/{repo_name}/milestones"
+    data = {"title": milestone_name, "description": str(desc)}
+    response = github_request(url, "POST", data)
+    return response
+
+
+def update_milestone(repo_name: str, milestone_number: int, body: dict) -> str:
+    url = f"https://api.github.com/repos/{repo_name}/milestones/{milestone_number}"
+    response = github_request(url, "PATCH", body)
+    return response
+
+
+def list_repo_milestones(repo_name: str) -> str:
+    url = f"https://api.github.com/repos/{repo_name}/milestones"
+    response = github_request(url, "GET")
+    return response
+
+
+def update_issue_milestone(repo_name: str, issue_number: int, milestone_number: int) -> str:
+    url = f"https://api.github.com/repos/{repo_name}/issues/{issue_number}"
+    data = {"milestone": milestone_number}
+    response = github_request(url, "PATCH", data)
+    return response
