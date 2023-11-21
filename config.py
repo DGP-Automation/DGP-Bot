@@ -16,6 +16,7 @@ INSTALLATION_ID = os.getenv('INSTALLATION_ID')
 GITHUB_PERSONAL_TOKEN = os.getenv('GITHUB_PERSONAL_TOKEN')
 
 # Global Variables
+AUTHORIZED_LEVEL = ["owner", "member"]
 access_token = ""
 access_token_generated_time = 0
 LABEL_TO_BE_REMOVED_ON_CLOSING = ["priority:high", "priority:low", "priority:medium", "需要社区帮助", "priority:none",

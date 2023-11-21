@@ -3,10 +3,10 @@ import re
 from dgp_tools import *
 from operater import make_issue_comment
 from issue import log_dump
+from config import AUTHORIZED_LEVEL
 
 
 async def comment_handler(payload: dict) -> str:
-    AUTHORIZED_LEVEL = ["owner", "member"]
     return_result = ""
 
     # issue commenter

@@ -3,6 +3,7 @@ from issue import issue_handler
 from push import push_handler
 from release import release_handler
 from issue_comment import comment_handler
+from pull_request import pull_request_handler
 from private_endpoints import private_send_issue_comment, add_discord_message, get_discord_message
 import uvicorn
 
@@ -32,6 +33,8 @@ async def payload(request: Request):
             result = await release_handler(request_payload)
         elif hook_type == "issue_comment":
             result = await comment_handler(request_payload)
+        elif hook_type == "pull_request":
+            result = await pull_request_handler(request_payload)
         else:
             print("Unknown hook type")
     except Exception as e:
