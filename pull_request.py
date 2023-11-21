@@ -7,7 +7,7 @@ async def pull_request_handler(payload: dict) -> str:
 
     # open pr
     if payload["action"] == "opened":
-        if payload["user"]["type"].lower() == "bot":
+        if payload["pull_request"]["user"]["type"].lower() == "bot":
             return_result += "PR opened by bot, skip actions"
             return return_result
         user_association = payload["pull_request"]["author_association"].lower()
