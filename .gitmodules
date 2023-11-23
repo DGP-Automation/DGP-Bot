@@ -1,0 +1,4 @@
+[submodule "dgp_utils"]
+	path = dgp_utils
+	url = https://github.com/DGP-Studio/private-modules
+	branch = DGP-Bot

@@ -1,6 +1,6 @@
 from operater import *
 import re
-from dgp_tools import *
+from dgp_utils.dgp_tools import *
 from config import OUTDATED_WINDOWS_VERSION, LABEL_TO_BE_REMOVED_ON_CLOSING, CATEGORY_MATCHER, CATEGORY_MATCHER_ENG
 
 

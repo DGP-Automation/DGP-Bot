@@ -1,6 +1,6 @@
 import re
 
-from dgp_tools import *
+from dgp_utils.dgp_tools import *
 from operater import make_issue_comment
 from issue import log_dump
 from config import AUTHORIZED_LEVEL
