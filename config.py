@@ -20,7 +20,7 @@ AUTHORIZED_LEVEL = ["owner", "member"]
 access_token = ""
 access_token_generated_time = 0
 LABEL_TO_BE_REMOVED_ON_CLOSING = ["priority:high", "priority:low", "priority:medium", "需要社区帮助", "priority:none",
-                                  "need-triage"]
+                                  "need-triage", "需要更多信息"]
 OUTDATED_WINDOWS_VERSION = ["18362", "18363", "19041",
                             "19042", "19043", "19044",
                             "1903", "2004", "20H2",
