@@ -1,7 +1,7 @@
 import re
 from operater import (make_issue_comment, add_issue_label, get_issue_label, get_issue_node_id, get_issue_language,
                       add_issue_to_project_board_with_number_and_column_name, remove_one_issue_label)
-from config import LABEL_TO_BE_REMOVED_ON_CLOSING
+from config import LABEL_TO_BE_REMOVED_ON_CLOSING, VALID_PUSH_REF
 
 
 async def find_fixed_issue(repo_name: str, commit_id: str, message: str) -> str:
@@ -57,7 +57,8 @@ async def push_handler(payload: dict) -> str:
     repo_name = payload["repository"]["full_name"]
     for commit in payload["commits"]:
         try:
-            return_result += await find_fixed_issue(repo_name, commit["id"], commit["message"])
+            if commit["ref"] in VALID_PUSH_REF:
+                return_result += await find_fixed_issue(repo_name, commit["id"], commit["message"])
         except TypeError:
             return_result = ""
     return return_result

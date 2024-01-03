@@ -62,3 +62,5 @@ CATEGORY_MATCHER_ENG = {
     "Snap Hutao Cloud": "area-HutaoCloud",
     "Snap Hutao Account": "area-Passport"
 }
+
+VALID_PUSH_REF = ["refs/heads/main", "refs/heads/develop"]
