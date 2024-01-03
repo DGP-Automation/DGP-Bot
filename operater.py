@@ -203,6 +203,16 @@ def get_issue_language(repo_name: str, issue_number: int) -> str:
         return "CHS"
 
 
+def get_issue_type(repo_name: str, issue_number: int) -> str:
+    url = f"https://api.github.com/repos/{repo_name}/issues/{issue_number}"
+    response = json.loads(github_request(url, "GET"))
+    try:
+        _ = response['pull_request']
+        return "pull_request"
+    except KeyError:
+        return "issue"
+
+
 def lock_issue_conversation(repo_name: str, issue_number: int, lock_reason: str = None) -> str:
     url = f"https://api.github.com/repos/{repo_name}/issues/{issue_number}/lock"
     if lock_reason is None:

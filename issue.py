@@ -1,7 +1,8 @@
 from operater import *
 import re
 from dgp_utils.dgp_tools import *
-from config import OUTDATED_WINDOWS_VERSION, LABEL_TO_BE_REMOVED_ON_CLOSING, CATEGORY_MATCHER, CATEGORY_MATCHER_ENG
+from config import (OUTDATED_WINDOWS_VERSION, LABEL_TO_BE_REMOVED_ON_CLOSING, CATEGORY_MATCHER, CATEGORY_MATCHER_ENG,
+                    AUTHORIZED_LEVEL)
 
 
 def bad_title_checker(title: str) -> bool:
@@ -81,25 +82,29 @@ def app_version_checker(body: str) -> dict:
         else:
             app_version = app_version.group(0).replace("Snap Hutao 版本\n\n", "")
             app_version = app_version.replace("### 设备 ID", "")
-        stable_metadata = json.loads(requests.get("https://api.github.com/repos/DGP-Studio/Snap.Hutao/"
-                                                  "releases/latest").text)
-        beta_metadata = [release for release in json.loads(requests.get("https://api.github.com"
-                                                                        "/repos/DGP-Studio/Snap.Hutao/releases").text)
-                         if release["prerelease"]][0]
-        latest_version = [stable_metadata["tag_name"], beta_metadata["tag_name"]]
-        if any(app_version.startswith(version) for version in latest_version):
+        stable_version = json.loads(requests.get("https://api.github.com/repos/DGP-Studio/Snap.Hutao/"
+                                                 "releases/latest").text)["tag_name"]
+        beta_metadata = json.loads(
+            requests.get("https://api.github.com"
+                         "/repos/DGP-Studio/Snap.Hutao/actions/artifacts?per_page=1").text)["artifacts"][0]
+        beta_version = beta_metadata["name"].split("-")[1]
+        beta_download_url = (f"https://github.com/DGP-Studio/Snap.Hutao/actions/runs"
+                             f"/{beta_metadata['workflow_run']['id']}/artifacts/{beta_metadata['id']}")
+        if app_version.startswith(stable_version):
             return {"code": 2, "data": app_version}
+        elif app_version.startswith(beta_version):
+            return {"code": 2, "data": app_version, "is_alpha": True}
         else:
             if is_eng:
-                return {"code": 1, "app_version": app_version, "latest_version": latest_version,
+                return {"code": 1,
                         "data": f"Please update to the latest version: \n"
-                                f" Stable: [{stable_metadata['tag_name']}](https://apps.microsoft.com/store/detail/snap-hutao/9PH4NXJ2JN52) \n"
-                                f" Beta: [{beta_metadata['tag_name']}]({beta_metadata['assets'][0]['browser_download_url']})"}
+                                f" Stable: [{stable_version}](https://api.snapgenshin.com/patch/hutao/download) \n"
+                                f" Beta: [{beta_version}]({beta_download_url})"}
             else:
-                return {"code": 1, "app_version": app_version, "latest_version": latest_version,
+                return {"code": 1,
                         "data": f"请更新至最新版本: \n"
-                                f" 稳定版: [{stable_metadata['tag_name']}](https://apps.microsoft.com/store/detail/snap-hutao/9PH4NXJ2JN52) \n"
-                                f" 测试版: [{beta_metadata['tag_name']}]({beta_metadata['assets'][0]['browser_download_url']})"}
+                                f" 稳定版: [{stable_version}](https://api.snapgenshin.com/patch/hutao/download) \n"
+                                f" 测试版: [{beta_version}]({beta_download_url})"}
     else:
         return {"code": 0, "data": "未找到版本号"}
 
@@ -142,7 +147,7 @@ async def issue_handler(payload: dict):
         # Publish Checker
         if "[Publish]" in issue_title and "Publish" in current_issue_labels:
             author_association = payload["issue"]["author_association"]
-            if author_association.lower() not in ["member", "owner"]:
+            if author_association.lower() not in AUTHORIZED_LEVEL:
                 result += close_issue(repo_name, issue_number, "not_planned")
                 result += block_user_from_organization(payload["repository"]["owner"]["login"], sender_name)
                 return result
@@ -235,6 +240,8 @@ async def issue_handler(payload: dict):
             result += close_issue(repo_name, issue_number, "not_planned")
             result += add_issue_label(repo_name, issue_number, ["过时的版本"])
         else:
+            if app_version_checker_return["is_alpha"]:
+                result += add_issue_label(repo_name, issue_number, ["测试版本"])
             print("App version check pass")
 
     elif action == "edited":
