@@ -1,6 +1,6 @@
 import re
 from operater import (make_issue_comment, add_issue_label, get_issue_label, get_issue_node_id, get_issue_language,
-                      add_issue_to_project_board_with_number_and_column_name, remove_one_issue_label)
+                      add_issue_to_project_board_with_number_and_column_name, remove_one_issue_label, get_issue_type)
 from config import LABEL_TO_BE_REMOVED_ON_CLOSING, VALID_PUSH_REF
 
 
@@ -14,6 +14,9 @@ async def find_fixed_issue(repo_name: str, commit_id: str, message: str) -> str:
     else:
         for issue in re_result:
             issue_number = issue.replace("#", "")
+            if get_issue_type(repo_name, issue_number) == "pull_request":
+                print(f"issue {issue_number} is a pr, skip.")
+                continue
             print(f"Commit {commit_id} fixed issue {issue_number}")
             issue_node_id = get_issue_node_id(repo_name, issue_number)
             current_issue_labels = get_issue_label(repo_name, issue_number)
