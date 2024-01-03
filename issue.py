@@ -1,7 +1,8 @@
 from operater import *
 import re
 from dgp_utils.dgp_tools import *
-from config import OUTDATED_WINDOWS_VERSION, LABEL_TO_BE_REMOVED_ON_CLOSING, CATEGORY_MATCHER, CATEGORY_MATCHER_ENG
+from config import (OUTDATED_WINDOWS_VERSION, LABEL_TO_BE_REMOVED_ON_CLOSING, CATEGORY_MATCHER, CATEGORY_MATCHER_ENG,
+                    AUTHORIZED_LEVEL)
 
 
 def bad_title_checker(title: str) -> bool:
@@ -146,7 +147,7 @@ async def issue_handler(payload: dict):
         # Publish Checker
         if "[Publish]" in issue_title and "Publish" in current_issue_labels:
             author_association = payload["issue"]["author_association"]
-            if author_association.lower() not in ["member", "owner"]:
+            if author_association.lower() not in AUTHORIZED_LEVEL:
                 result += close_issue(repo_name, issue_number, "not_planned")
                 result += block_user_from_organization(payload["repository"]["owner"]["login"], sender_name)
                 return result

@@ -12,8 +12,8 @@ async def pull_request_handler(payload: dict) -> str:
             return return_result
         user_association = payload["pull_request"]["author_association"].lower()
         user_name = payload["pull_request"]["user"]["login"]
-        if user_association in AUTHORIZED_LEVEL:
-            return_result += "PR opened by authorized user, skip actions"
+        if user_association != "first_time_contributor":
+            return_result += "PR opened by recognized user, skip actions"
             return return_result
         new_issue_comment = f""""@{user_name} Thanks for your Pull Request! It is now pending for review. We invite you to join our community as a contributor via link below, so you get in touch with the development team in an easier way.
         
