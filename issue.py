@@ -91,7 +91,7 @@ def app_version_checker(body: str) -> dict:
         beta_download_url = (f"https://github.com/DGP-Studio/Snap.Hutao/actions/runs"
                              f"/{beta_metadata['workflow_run']['id']}/artifacts/{beta_metadata['id']}")
         if app_version.startswith(stable_version):
-            return {"code": 2, "data": app_version}
+            return {"code": 2, "data": app_version, "is_alpha": False}
         elif app_version.startswith(beta_version):
             return {"code": 2, "data": app_version, "is_alpha": True}
         else:
@@ -106,7 +106,7 @@ def app_version_checker(body: str) -> dict:
                                 f" 稳定版: [{stable_version}](https://api.snapgenshin.com/patch/hutao/download) \n"
                                 f" 测试版: [{beta_version}]({beta_download_url})"}
     else:
-        return {"code": 0, "data": "未找到版本号"}
+        return {"code": 0, "data": "未找到版本号", "is_alpha": False}
 
 
 def windows_version_checker(body: str) -> dict:
