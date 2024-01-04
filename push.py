@@ -58,10 +58,10 @@ async def push_handler(payload: dict) -> str:
 
     # issue commenter
     repo_name = payload["repository"]["full_name"]
-    for commit in payload["commits"]:
-        try:
-            if commit["ref"] in VALID_PUSH_REF:
+    if payload["ref"] in VALID_PUSH_REF:
+        for commit in payload["commits"]:
+            try:
                 return_result += await find_fixed_issue(repo_name, commit["id"], commit["message"])
-        except TypeError:
-            return_result = ""
+            except TypeError:
+                return_result = ""
     return return_result
