@@ -97,12 +97,16 @@ def app_version_checker(body: str) -> dict:
         else:
             if is_eng:
                 return {"code": 1,
-                        "data": f"Please update to the latest version: \n"
+                        "data": f"Due to resource constraints, we will not consider issues related to older versions "
+                                f"of the client. If you believe this is not a right judgement, please reopen the "
+                                f"issue manually \n"
+                                f" Please update to the latest version: \n"
                                 f" Stable: [{stable_version}](https://api.snapgenshin.com/patch/hutao/download) \n"
                                 f" Beta: [{beta_version}]({beta_download_url})"}
             else:
                 return {"code": 1,
-                        "data": f"请更新至最新版本: \n"
+                        "data": f"由于资源有限，我们将不会考虑与旧版本客户端相关的问题。如果你认为该判定有误，请手动重新打开议题。 \n"
+                                f" 请更新至最新版本: \n"
                                 f" 稳定版: [{stable_version}](https://api.snapgenshin.com/patch/hutao/download) \n"
                                 f" 测试版: [{beta_version}]({beta_download_url})"}
     else:
