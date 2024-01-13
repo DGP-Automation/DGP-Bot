@@ -1,7 +1,8 @@
 import re
+
+from config import LABEL_TO_BE_REMOVED_ON_CLOSING, VALID_PUSH_REF
 from operater import (make_issue_comment, add_issue_label, get_issue_label, get_issue_node_id, get_issue_language,
                       add_issue_to_project_board_with_number_and_column_name, remove_one_issue_label, get_issue_type)
-from config import LABEL_TO_BE_REMOVED_ON_CLOSING, VALID_PUSH_REF
 
 
 async def find_fixed_issue(repo_name: str, commit_id: str, message: str) -> str:
@@ -37,7 +38,8 @@ async def find_fixed_issue(repo_name: str, commit_id: str, message: str) -> str:
                 if is_bug:
                     return_result += make_issue_comment(repo_name, issue_number, f"{commit_id} fixed this bug")
                 elif is_feat:
-                    return_result += make_issue_comment(repo_name, issue_number, f"{commit_id} implemented this feature")
+                    return_result += make_issue_comment(repo_name, issue_number,
+                                                        f"{commit_id} implemented this feature")
                 else:
                     return_result += make_issue_comment(repo_name, issue_number, f"{commit_id} finished this issue")
             else:

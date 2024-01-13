@@ -1,8 +1,7 @@
-from operater import *
 import re
+
 from dgp_utils.dgp_tools import *
-from config import (OUTDATED_WINDOWS_VERSION, LABEL_TO_BE_REMOVED_ON_CLOSING, CATEGORY_MATCHER, CATEGORY_MATCHER_ENG,
-                    AUTHORIZED_LEVEL)
+from operater import *
 
 
 def bad_title_checker(title: str) -> bool:
@@ -259,7 +258,8 @@ async def issue_handler(payload: dict):
         issue_labels = get_issue_label(repo_name, issue_number)
         # Condition Checker
         for bot_comment in bot_comments:
-            if ("请通过编辑功能设置一个合适的标题" in bot_comment["body"] or "Please edit the issue is set a proper title"
+            if ("请通过编辑功能设置一个合适的标题" in bot_comment[
+                "body"] or "Please edit the issue is set a proper title"
                     in bot_comment["body"]):
                 had_bad_title = True
             if "标题已经修改" in bot_comment["body"] or "Title is fixed" in bot_comment["body"]:
@@ -296,10 +296,23 @@ async def issue_handler(payload: dict):
 
     elif action == "labeled":
         # If label with BUG or 功能, add to project
-        project_trigger_label = ["BUG", "功能", "bug"]
         new_label = payload["label"]["name"]
-        if new_label in project_trigger_label:
+        if new_label in PROJECT_TRIGGER_LABEL:
             print(f"Find {new_label} label, add it to project")
+            org_name = payload["repository"]["owner"]["login"]
+            issue_node_id = payload["issue"]["node_id"]
+            result += add_issue_to_project_board_with_number_and_column_name(org_name=org_name,
+                                                                             issue_node_id=issue_node_id,
+                                                                             project_number=2,
+                                                                             column_name="备忘录")
+
+    elif action == "reopened":
+        # restore removed labels
+        closed_labels = get_issue_removed_labels(repo_name, issue_number)
+        result += add_issue_label(repo_name, issue_number, closed_labels)
+        current_labels = get_issue_label(repo_name, issue_number)
+        if len(set(current_labels) & set(PROJECT_TRIGGER_LABEL)) > 0:
+            print(f"Find {current_labels} label in reopened issue, restore its state in project")
             org_name = payload["repository"]["owner"]["login"]
             issue_node_id = payload["issue"]["node_id"]
             result += add_issue_to_project_board_with_number_and_column_name(org_name=org_name,

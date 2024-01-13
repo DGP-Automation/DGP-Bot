@@ -1,10 +1,11 @@
+import datetime
 import json
+import time
+
+import jwt
+import requests
 
 from config import *
-import requests
-import datetime
-import jwt
-import time
 
 
 def get_access_token() -> str:
@@ -114,6 +115,12 @@ def set_issue_labels(repo_name: str, issue_number: int, label: list) -> str:
     data = {"labels": label}
     response = github_request(url, "PUT", data)
     return response
+
+
+def get_issue_removed_labels(repo_name: str, issue_number: int) -> list:
+    url = f"https://api.github.com/repos/{repo_name}/issues/{issue_number}/timeline"
+    response = json.loads(github_request(url, "GET"))
+    return [event["label"]["name"] for event in response if event["event"] == "unlabeled"]
 
 
 def close_issue(repo_name: str, issue_number: int, reason: str) -> str:

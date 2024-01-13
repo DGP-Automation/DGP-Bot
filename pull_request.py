@@ -1,4 +1,3 @@
-from config import AUTHORIZED_LEVEL
 from operater import make_issue_comment
 
 
