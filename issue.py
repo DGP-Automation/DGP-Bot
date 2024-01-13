@@ -1,8 +1,7 @@
-from operater import *
 import re
+
 from dgp_utils.dgp_tools import *
-from config import (OUTDATED_WINDOWS_VERSION, LABEL_TO_BE_REMOVED_ON_CLOSING, CATEGORY_MATCHER, CATEGORY_MATCHER_ENG,
-                    AUTHORIZED_LEVEL, PROJECT_TRIGGER_LABEL)
+from operater import *
 
 
 def bad_title_checker(title: str) -> bool:
@@ -259,7 +258,8 @@ async def issue_handler(payload: dict):
         issue_labels = get_issue_label(repo_name, issue_number)
         # Condition Checker
         for bot_comment in bot_comments:
-            if ("请通过编辑功能设置一个合适的标题" in bot_comment["body"] or "Please edit the issue is set a proper title"
+            if ("请通过编辑功能设置一个合适的标题" in bot_comment[
+                "body"] or "Please edit the issue is set a proper title"
                     in bot_comment["body"]):
                 had_bad_title = True
             if "标题已经修改" in bot_comment["body"] or "Title is fixed" in bot_comment["body"]:
@@ -319,7 +319,6 @@ async def issue_handler(payload: dict):
                                                                              issue_node_id=issue_node_id,
                                                                              project_number=2,
                                                                              column_name="备忘录")
-
 
     elif action == "closed":
         current_labels = get_issue_label(repo_name, issue_number)

@@ -1,9 +1,9 @@
 import re
 
-from dgp_utils.dgp_tools import *
-from operater import make_issue_comment
-from issue import log_dump
 from config import AUTHORIZED_LEVEL
+from dgp_utils.dgp_tools import *
+from issue import log_dump
+from operater import make_issue_comment
 
 
 async def comment_handler(payload: dict) -> str:
@@ -15,9 +15,9 @@ async def comment_handler(payload: dict) -> str:
     comment_sender = payload["comment"]["user"]["login"]
     authority = payload["comment"]["author_association"]
     comment_body = payload["comment"]["body"]
-    pull_log_command = re.search(r"(\/log) (?P<device_id>\w{32})", comment_body)
+    pull_log_command = re.search(r"(/log) (?P<device_id>\w{32})", comment_body)
     if not pull_log_command:
-        pull_log_command = re.search(r"(^\/log$)", comment_body)
+        pull_log_command = re.search(r"(^/log$)", comment_body)
     if pull_log_command:
         if authority.lower() not in AUTHORIZED_LEVEL:
             print(f"Unauthorized user: {comment_sender} was trying to pull log, authority: {authority}")

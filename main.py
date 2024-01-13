@@ -1,10 +1,11 @@
+import uvicorn
 from fastapi import FastAPI, Request
+
 from issue import issue_handler
-from push import push_handler
-from release import release_handler
 from issue_comment import comment_handler
 from pull_request import pull_request_handler
-import uvicorn
+from push import push_handler
+from release import release_handler
 
 app = FastAPI(docs_url=None, redoc_url=None)
 
@@ -37,6 +38,7 @@ async def payload(request: Request):
         print("Unknown hook type")
 
     return {"message": str(result)}
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

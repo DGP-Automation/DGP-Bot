@@ -1,7 +1,7 @@
 import json
 
-from operater import get_issue_with_label, make_issue_comment, remove_one_issue_label, get_issue_language, close_issue, \
-    list_repo_milestones, update_milestone
+from operater import (get_issue_with_label, make_issue_comment, remove_one_issue_label, get_issue_language, close_issue,
+                      list_repo_milestones, update_milestone)
 
 
 async def notify_issuers(repo_name: str, release_name: str, html_url: str) -> str:
@@ -28,8 +28,9 @@ async def notify_issuers(repo_name: str, release_name: str, html_url: str) -> st
             )
         elif issue_language == "ENG":
             return_result += make_issue_comment(
-                repo_name, issue_number, f"Program version [{release_name}]({html_url}) which contains the solution has been "
-                                         f"released."
+                repo_name, issue_number,
+                f"Program version [{release_name}]({html_url}) which contains the solution has been "
+                f"released."
             )
         else:
             pass

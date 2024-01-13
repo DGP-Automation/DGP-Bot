@@ -170,8 +170,7 @@ def get_project_columns_by_node_id(org_name: str, project_number: int) -> dict:
             return item
 
 
-def add_issue_to_project_board_with_number_and_column_name(org_name: str, issue_node_id: str,
-                                                           project_number: int,
+def add_issue_to_project_board_with_number_and_column_name(org_name: str, issue_node_id: str, project_number: int,
                                                            column_name: str = None) -> str:
     # the column is presented as "option" in the project board by GitHub
     # so needs to convert the column name to an option ID
