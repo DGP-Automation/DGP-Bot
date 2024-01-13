@@ -301,10 +301,10 @@ async def issue_handler(payload: dict):
             print(f"Find {new_label} label, add it to project")
             org_name = payload["repository"]["owner"]["login"]
             issue_node_id = payload["issue"]["node_id"]
-            result += add_or_move_issue_to_project_board_with_number_and_column_name(org_name=org_name,
-                                                                                     issue_node_id=issue_node_id,
-                                                                                     project_number=2,
-                                                                                     column_name="备忘录")
+            result += add_issue_to_project_board_with_number_and_column_name(org_name=org_name,
+                                                                             issue_node_id=issue_node_id,
+                                                                             project_number=2,
+                                                                             column_name="备忘录")
 
     elif action == "reopened":
         # restore removed labels
@@ -315,10 +315,10 @@ async def issue_handler(payload: dict):
             print(f"Find {current_labels} label in reopened issue, restore its state in project")
             org_name = payload["repository"]["owner"]["login"]
             issue_node_id = payload["issue"]["node_id"]
-            result += add_or_move_issue_to_project_board_with_number_and_column_name(org_name=org_name,
-                                                                                     issue_node_id=issue_node_id,
-                                                                                     project_number=2,
-                                                                                     column_name="备忘录")
+            result += add_issue_to_project_board_with_number_and_column_name(org_name=org_name,
+                                                                             issue_node_id=issue_node_id,
+                                                                             project_number=2,
+                                                                             column_name="备忘录")
 
 
     elif action == "closed":

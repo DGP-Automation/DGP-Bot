@@ -1,10 +1,11 @@
+import datetime
 import json
+import time
+
+import jwt
+import requests
 
 from config import *
-import requests
-import datetime
-import jwt
-import time
 
 
 def get_access_token() -> str:
@@ -169,25 +170,17 @@ def get_project_columns_by_node_id(org_name: str, project_number: int) -> dict:
             return item
 
 
-def add_or_move_issue_to_project_board_with_number_and_column_name(org_name: str, issue_node_id: str,
-                                                                   project_number: int,
-                                                                   column_name: str = None) -> str:
+def add_issue_to_project_board_with_number_and_column_name(org_name: str, issue_node_id: str,
+                                                           project_number: int,
+                                                           column_name: str = None) -> str:
     # the column is presented as "option" in the project board by GitHub
     # so needs to convert the column name to an option ID
     url = f"https://api.github.com/graphql"
     project_node_id = get_project_node_id_by_number(org_name, project_number)
-    data = {"query": 'query { node(id: "%s") { ... on ProjectV2 { items(first: 20) { ... on ProjectV2ItemConnection'
-                     ' { nodes { id content { ... on DraftIssue { id } ... on Issue { id }}}}}}}}' % project_node_id}
-    response = json.loads(github_request(url, "POST", data, True))
-    card_id = list(
-        filter(lambda node: node["content"]["id"] == issue_node_id, response["data"]["node"]["items"]["nodes"]))
-    if card_id:
-        card_id = card_id[0]["id"]
-    else:
-        data = {"query": 'mutation {addProjectV2ItemById(input: {projectId: "%s",contentId: "%s"}) {item {id}}}' % (
-            project_node_id, issue_node_id)}
-        response = json.loads(github_request(url, "POST", data))
-        card_id = response["data"]["addProjectV2ItemById"]["item"]["id"]
+    data = {"query": 'mutation {addProjectV2ItemById(input: {projectId: "%s",contentId: "%s"}) {item {id}}}' % (
+        project_node_id, issue_node_id)}
+    response = json.loads(github_request(url, "POST", data))
+    new_card_id = response["data"]["addProjectV2ItemById"]["item"]["id"]
     if column_name:
         status = get_project_columns_by_node_id(org_name, project_number)
         status_field_id = status["id"]
@@ -197,7 +190,7 @@ def add_or_move_issue_to_project_board_with_number_and_column_name(org_name: str
                 data = {
                     "query": 'mutation {updateProjectV2ItemFieldValue (input: { projectId: "%s", itemId: "%s", '
                              'fieldId: "%s" value: { singleSelectOptionId: "%s" }}) { clientMutationId } }' % (
-                                 project_node_id, card_id, status_field_id, option["id"])}
+                                 project_node_id, new_card_id, status_field_id, option["id"])}
     response = github_request(url, "POST", data)
     return response
 
