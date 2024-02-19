@@ -309,7 +309,7 @@ async def issue_handler(payload: dict):
     elif action == "reopened":
         # restore removed labels
         closed_labels = get_issue_removed_labels(repo_name, issue_number)
-        result += add_issue_label(repo_name, issue_number, closed_labels)
+        result += add_issue_label(repo_name, issue_number, [closed_labels[-1]])
         current_labels = get_issue_label(repo_name, issue_number)
         if len(set(current_labels) & set(PROJECT_TRIGGER_LABEL)) > 0:
             print(f"Find {current_labels} label in reopened issue, restore its state in project")
