@@ -1,13 +1,14 @@
 import uvicorn
 from fastapi import FastAPI, Request
-
 from issue import issue_handler
 from issue_comment import comment_handler
 from pull_request import pull_request_handler
 from push import push_handler
 from release import release_handler
+import admin
 
 app = FastAPI(docs_url=None, redoc_url=None)
+app.include_router(admin.router)
 
 
 @app.get("/")
