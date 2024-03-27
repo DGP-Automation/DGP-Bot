@@ -1,6 +1,6 @@
 #!/bin/sh
 # Build Stage
-FROM python:3.11 AS builder
+FROM python:3.12 AS builder
 WORKDIR /code
 ADD . /code
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt

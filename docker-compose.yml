@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: dgp-bot:latest
+    container_name: DGP-Bot
+    volumes:
+      - ./.env:/app/.env
+    restart: unless-stopped
+    depends_on:
+      - tunnel
+
+  tunnel:
+    container_name: DGP-Bot-Tunnel
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=dgp-bot-tunnel-token
