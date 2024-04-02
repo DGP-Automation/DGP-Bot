@@ -29,40 +29,41 @@ OUTDATED_WINDOWS_VERSION = ["18362", "18363", "19041",
                             "21H1", "21H2", "22000"]
 CATEGORY_MATCHER = {
     "安装和环境": "area-LifeCycle",
-    "成就管理": "area-Achievement",
-    "角色信息面板": "area-AvatarInfo",
     "游戏启动器": "area-GameLauncher",
+    "祈愿记录": "area-Gacha",
+    "成就管理": "area-Achievement",
+    "我的角色": "area-AvatarInfo",
     "实时便笺": "area-DailyNote",
     "养成计算": "area-Cultivation",
-    "用户面板": "area-UserPanel",
+    "深境螺旋/胡桃数据库": "area-HutaoAPI",
+    "米游社账号面板": "area-UserPanel",
     "文件缓存": "area-FileCache",
-    "祈愿记录": "area-Gacha",
     "玩家查询": "area-GameRecord",
-    "胡桃数据库": "area-HutaoAPI",
     "用户界面": "area-UserInterface",
     "公告": "area-Announcement",
-    "签到": "area-SignIn",
-    "胡桃云": "area-HutaoCloud",
-    "胡桃帐号": "area-Passport"
+    "每日签到奖励": "area-CheckIn",
+    "胡桃通行证/胡桃云": "area-Passport",
+    "Wiki": "needs-triage",
+    "其它": "needs-triage"
 }
 
 CATEGORY_MATCHER_ENG = {
     "Installation and Environment": "area-LifeCycle",
+    "Game Launcher": "area-GameLauncher",
+    "Wish Export": "area-Gacha",
     "Achievement": "area-Achievement",
     "My Character": "area-AvatarInfo",
-    "Game Launcher": "area-GameLauncher",
     "Realtime Note": "area-DailyNote",
     "Develop Plan": "area-Cultivation",
-    "User Panel": "area-UserPanel",
+    "MiHoYo Account Panel": "area-UserPanel",
     "File Cache": "area-FileCache",
-    "Wish Export": "area-Gacha",
-    "Game Record": "area-GameRecord",
+    "Daily Checkin Reward": "area-CheckIn",
+    "Hutao Passport/Hutao Cloud": "area-Passport",
     "Hutao Database": "area-HutaoAPI",
     "User Interface": "area-UserInterface",
     "Announcement": "area-Announcement",
-    "Checkin": "area-SignIn",
-    "Snap Hutao Cloud": "area-HutaoCloud",
-    "Snap Hutao Account": "area-Passport"
+    "Wiki": "needs-triage",
+    "Others": "needs-triage"
 }
 
 VALID_PUSH_REF = ["refs/heads/main", "refs/heads/develop"]
