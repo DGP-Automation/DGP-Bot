@@ -44,6 +44,7 @@ async def comment_handler(payload: dict) -> str:
             print("Invalid command format when pulling log")
     if comment_body.strip().startswith("/pr-summary"):
         org_name, repo_name = repo_name.split("/")
-        create_pull_request_summary(org_name, repo_name, issue_number)
         print(f"Generating PR summary for {repo_name}#{issue_number}")
+        ai_summary = create_pull_request_summary(org_name, repo_name, issue_number)
+        return_result += make_issue_comment(repo_name, issue_number, ai_summary)
     return return_result
