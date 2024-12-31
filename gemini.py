@@ -42,7 +42,7 @@ def create_pull_request_summary(org_name: str, repo_name: str, pr_number: int) -
 
     2. Changes by feature
     
-    - Features usually orgnized in same folder or different path with same or related folder name.
+    - Features usually organized in same folder or different path with same or related folder name.
     - Group changes by feature. List them as separate bullet points under their respective headings.
     - Use collapsible section in here, to avoid cluttering the summary with too many details.
 
@@ -55,9 +55,9 @@ def create_pull_request_summary(org_name: str, repo_name: str, pr_number: int) -
     - Explain why these changes are critical or how they might affect the overall codebase.
 
 
-    4. Suggested Test Methods (Only for python project)
+    4. Suggested Test Methods (Only for Python project)
     
-    - If the project is not a python project, skip this section.
+    - If the project is not a Python project, skip this section.
     - Provide recommended test scenarios to ensure the changes work correctly and do not break existing functionality. For example:
         - API endpoint tests for new or changed endpoints
         - Unit tests for new utility functions or classes
