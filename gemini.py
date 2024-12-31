@@ -40,9 +40,10 @@ def create_pull_request_summary(org_name: str, repo_name: str, pr_number: int) -
 
     - It's common to see multiple commits address the same goal (e.g., refactoring a single module or introducing a new feature). In a big picture view, summarize feature changes or bug fixes that span multiple commits.
 
-    2. Changes by Router/Module
-
-    - Group changes by routers/modules. For example, if there are changes to user_router.py, auth_router.py, or database.py, list them as separate bullet points under their respective headings.
+    2. Changes by feature
+    
+    - Features usually organized in same folder or different path with same or related folder name.
+    - Group changes by feature. List them as separate bullet points under their respective headings.
     - Use collapsible section in here, to avoid cluttering the summary with too many details.
 
     3. Key Change Highlights
@@ -54,8 +55,9 @@ def create_pull_request_summary(org_name: str, repo_name: str, pr_number: int) -
     - Explain why these changes are critical or how they might affect the overall codebase.
 
 
-    4. Suggested Test Methods
-
+    4. Suggested Test Methods (Only for Python project)
+    
+    - If the project is not a Python project, skip this section.
     - Provide recommended test scenarios to ensure the changes work correctly and do not break existing functionality. For example:
         - API endpoint tests for new or changed endpoints
         - Unit tests for new utility functions or classes
@@ -64,7 +66,7 @@ def create_pull_request_summary(org_name: str, repo_name: str, pr_number: int) -
     ## Output Format
 
     1. Separate the summary into the following sections:
-    2. Changes by Router/Module (bullet points grouped by relevant file or router)
+    2. Changes by feature (bullet points grouped by relevant file or router)
     3. Key Change Highlights (focus on major or structural changes)
     4. Suggested Test Method (recommended test scenarios)
 
