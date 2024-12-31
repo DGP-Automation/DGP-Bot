@@ -175,7 +175,7 @@ async def issue_handler(payload: dict):
         if bad_title_checker(issue_title):
             print("Bad title issue found")
             if is_eng:
-                result += make_issue_comment(repo_name, issue_number, f"@{sender_name} Please edit the issue is set a "
+                result += make_issue_comment(repo_name, issue_number, f"@{sender_name} Please edit the issue to set a "
                                                                       f"proper title")
             else:
                 result += make_issue_comment(repo_name, issue_number,
