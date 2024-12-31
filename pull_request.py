@@ -43,6 +43,11 @@ We invite you to join our community as a contributor via the links below, so you
         # STEP 2: Check if this repository is in our whitelist
         repo_full_name = payload["repository"]["full_name"]
         if repo_full_name in WHITELIST:
+            # PR title
+            pr_title = payload["pull_request"]["title"]
+            if "Crowdin" in pr_title:
+                return_result += "\n\nPR title contains `Crowdin`, skip AI summary generation."
+
             # Prepare the parameters for summary generation
             org_name = payload["repository"]["owner"]["login"]
             repo_name = payload["repository"]["name"]

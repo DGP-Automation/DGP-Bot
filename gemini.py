@@ -71,6 +71,7 @@ def create_pull_request_summary(org_name: str, repo_name: str, pr_number: int) -
     You can find all the commits and changed files in the PR description and patch. Please summarize the changes accordingly. 
     Do not forget to include the PR intro (summarized title, author(s), etc.) in the final summary.
     Avoid unnecessary responses and just include summaries in your response, response should be in markdown format (no need to write in code block because your response will send to reply directly)and you can use GitHub Flavored Markdown for better reading experience.
+    Ignore all commits that not associated with code programming, such as localization (resx) and markdown file.
     PR patch:
     ```
     {diff_patch}
