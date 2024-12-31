@@ -1,5 +1,5 @@
 import re
-
+from gemini import create_pull_request_summary
 from config import AUTHORIZED_LEVEL
 from dgp_utils.dgp_tools import *
 from issue import log_dump
@@ -42,4 +42,7 @@ async def comment_handler(payload: dict) -> str:
                 return_result += make_issue_comment(repo_name, issue_number, f"> {comment_body}\n\n未找到设备 ID")
         else:
             print("Invalid command format when pulling log")
+    if "@ai-review" in comment_body.strip():
+        org_name, repo_name = repo_name.split("/")
+        create_pull_request_summary(org_name, repo_name, issue_number)
     return return_result
