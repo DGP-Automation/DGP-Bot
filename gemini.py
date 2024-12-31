@@ -62,7 +62,7 @@ def create_pull_request_summary(org_name: str, repo_name: str, pr_number: int) -
 
     4. Suggested Test Methods (Only for Python project)
     
-    - If the project is not a Python project, skip this section.
+    - If the project is not a Python project, skip this section and do not give any output in this section.
     - Provide recommended test scenarios to ensure the changes work correctly and do not break existing functionality. For example:
         - API endpoint tests for new or changed endpoints
         - Unit tests for new utility functions or classes

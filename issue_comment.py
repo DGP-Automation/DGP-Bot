@@ -10,7 +10,7 @@ async def comment_handler(payload: dict) -> str:
     return_result = ""
 
     # issue commenter
-    repo_name = payload["repository"]["full_name"]
+    full_repo_name = payload["repository"]["full_name"]
     issue_number = payload["issue"]["number"]
     comment_sender = payload["comment"]["user"]["login"]
     authority = payload["comment"]["author_association"]
@@ -29,22 +29,26 @@ async def comment_handler(payload: dict) -> str:
             dumped_log = get_log(device_id)
             if dumped_log["data"]:
                 data = f"device_id: {device_id} \n```\n{dumped_log['data'][0]['Info']}\n```"
-                return_result += make_issue_comment(repo_name, issue_number, data)
+                return_result += make_issue_comment(full_repo_name, issue_number, data)
             else:
-                return_result += make_issue_comment(repo_name, issue_number, f"> {comment_body}\n\n无已捕获的错误日志")
+                return_result += make_issue_comment(full_repo_name, issue_number, f"> {comment_body}\n\n无已捕获的错误日志")
         elif len(comment_body_list) == 1:
             issue_body = payload["issue"]["body"]
             dumped_log = log_dump(issue_body)
             if dumped_log["code"] != 0:
                 print("Find device log, post it")
-                return_result += make_issue_comment(repo_name, issue_number, dumped_log["data"])
+                return_result += make_issue_comment(full_repo_name, issue_number, dumped_log["data"])
             else:
-                return_result += make_issue_comment(repo_name, issue_number, f"> {comment_body}\n\n未找到设备 ID")
+                return_result += make_issue_comment(full_repo_name, issue_number, f"> {comment_body}\n\n未找到设备 ID")
         else:
             print("Invalid command format when pulling log")
     if comment_body.strip().startswith("/pr-summary"):
-        org_name, repo_name = repo_name.split("/")
-        print(f"Generating PR summary for {repo_name}#{issue_number}")
-        ai_summary = create_pull_request_summary(org_name, repo_name, issue_number)
-        return_result += make_issue_comment(repo_name, issue_number, ai_summary)
+        org_name, repository_name = full_repo_name.split("/")
+        print(f"Generating PR summary for {full_repo_name}#{issue_number}")
+        summary_text = create_pull_request_summary(org_name, repository_name, issue_number)
+        return_result += make_issue_comment(
+            full_repo_name,
+            issue_number,
+            summary_text
+        )
     return return_result
