@@ -8,7 +8,11 @@ The project is a Python FastAPI application that serves a desktop software for a
 """
 
 snap_hutao_intro = """
-The project is a C# .net desktop application, build with latest .NET 9.0 framework and utilize latest features of WinUI 3.
+The project is a C# .NET desktop application, build with latest .NET framework and utilize latest features of WinUI 3.
+"""
+
+snap_hutao_server_intro = """
+The project is a C# ASP.NET web application, build with latest .NET framework.
 """
 
 
@@ -19,12 +23,13 @@ def create_pull_request_summary(org_name: str, repo_name: str, pr_number: int) -
     client = genai.Client(api_key=gemini_api_key)
     diff_patch = requests.get(
         f"https://patch-diff.githubusercontent.com/raw/{org_name}/{repo_name}/pull/{pr_number}.patch").content
-
     match repo_name.lower():
         case "snap.hutao":
             project_intro = snap_hutao_intro
         case "generic-api":
             project_intro = generic_api_intro
+        case "snap.hutao.server":
+            project_intro = snap_hutao_server_intro
         case _:
             project_intro = ""
 
@@ -81,4 +86,5 @@ def create_pull_request_summary(org_name: str, repo_name: str, pr_number: int) -
     """
     response = client.models.generate_content(model='gemini-2.0-flash-exp', contents=PR_prompt)
     response = response.text
+    print(f"AI Summary for {org_name}/{repo_name}#{pr_number}: \n{response}")
     return response
