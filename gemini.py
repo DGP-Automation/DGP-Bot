@@ -19,6 +19,7 @@ snap_hutao_docs_intro = """
 This project is not a programming project, it's the documentation project for Snap.Hutao. This project used VuePress to build the documentation website, and the content is written in Markdown.
 You do not need to do anything with Vue-related files, only focus on the Markdown files. Checks for correct grammar, accurate wording, and can provide clear guidance.
 If this PR is for a software changelog update, provide a copy of the English changelog translated by you in Markdown raw text using a code block while retaining the Chinese changelog style.
+If the PR only update the Chinese document, but not include the English document, provide an instruction to modify the English document, use code block to wrap the Markdown raw content.
 When listing the change summaries, list the paths to all the documents that have changed, so that we can easily find the corresponding documents when reviewing them.
 """
 
