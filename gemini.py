@@ -15,6 +15,13 @@ snap_hutao_server_intro = """
 The project is a C# ASP.NET web application, build with latest .NET framework.
 """
 
+snap_hutao_docs_intro = """
+This project is not a programming project, it's the documentation project for Snap.Hutao. This project used VuePress to build the documentation website, and the content is written in Markdown.
+You do not need to do anything with Vue-related files, only focus on the Markdown files. Checks for correct grammar, accurate wording, and can provide clear guidance.
+If this PR is for a software changelog update, provide a copy of the English changelog translated by you in Markdown raw text using a code block while retaining the Chinese changelog style.
+When listing the change summaries, list the paths to all the documents that have changed, so that we can easily find the corresponding documents when reviewing them.
+"""
+
 
 def create_pull_request_summary(org_name: str, repo_name: str, pr_number: int) -> str:
     gemini_api_key = os.getenv("GEMINI_API_KEY", "")
@@ -30,6 +37,8 @@ def create_pull_request_summary(org_name: str, repo_name: str, pr_number: int) -
             project_intro = generic_api_intro
         case "snap.hutao.server":
             project_intro = snap_hutao_server_intro
+        case "snap.hutao.docs":
+            project_intro = snap_hutao_docs_intro
         case _:
             project_intro = ""
 
