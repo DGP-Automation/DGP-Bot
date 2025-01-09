@@ -45,7 +45,7 @@ async def comment_handler(payload: dict) -> str:
     if comment_body.strip().startswith("/pr-summary"):
         org_name, repository_name = full_repo_name.split("/")
         print(f"Generating PR summary for {full_repo_name}#{issue_number}")
-        summary_text = create_pull_request_summary(org_name, repository_name, issue_number)
+        summary_text = await create_pull_request_summary(org_name, repository_name, issue_number)
         return_result += make_issue_comment(
             full_repo_name,
             issue_number,

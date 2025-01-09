@@ -2,7 +2,6 @@ from google import genai
 import requests
 import os
 
-
 generic_api_intro = """
 The project is a Python FastAPI application that serves a desktop software for a variety of tasks. The API is running in Python 12 and a nearly latest FastAPI version.
 """
@@ -24,13 +23,29 @@ When listing the change summaries, list the paths to all the documents that have
 """
 
 
-def create_pull_request_summary(org_name: str, repo_name: str, pr_number: int) -> str:
+def remove_less_important_changes(full_text: str) -> str:
+    text_parts = full_text.split("diff --git")
+    filtered_parts = []
+
+    for part in text_parts:
+        if not part.strip():
+            continue
+        first_line = part.strip().splitlines()[0]
+
+        if not (first_line.endswith(".md") or first_line.endswith(".resx")):
+            filtered_parts.append(part)
+    result_text = "diff --git".join(filtered_parts)
+
+    return result_text
+
+
+async def create_pull_request_summary(org_name: str, repo_name: str, pr_number: int) -> str:
     gemini_api_key = os.getenv("GEMINI_API_KEY", "")
     if not gemini_api_key:
         raise ValueError("GEMINI_API_KEY is not set in the environment variables.")
     client = genai.Client(api_key=gemini_api_key)
-    diff_patch = requests.get(
-        f"https://patch-diff.githubusercontent.com/raw/{org_name}/{repo_name}/pull/{pr_number}.patch").content
+    diff_patch_url = f"https://patch-diff.githubusercontent.com/raw/{org_name}/{repo_name}/pull/{pr_number}.patch"
+    diff_patch = requests.get(diff_patch_url).text
     match repo_name.lower():
         case "snap.hutao":
             project_intro = snap_hutao_intro
@@ -56,7 +71,7 @@ def create_pull_request_summary(org_name: str, repo_name: str, pr_number: int) -
     - It's common to see multiple commits address the same goal (e.g., refactoring a single module or introducing a new feature). In a big picture view, summarize feature changes or bug fixes that span multiple commits.
 
     2. Changes by feature
-    
+
     - Features usually organized in same folder or different path with same or related folder name.
     - Group changes by feature. List them as separate bullet points under their respective headings.
     - Use collapsible section in here, to avoid cluttering the summary with too many details.
@@ -71,7 +86,7 @@ def create_pull_request_summary(org_name: str, repo_name: str, pr_number: int) -
 
 
     4. Suggested Test Methods (Only for Python project)
-    
+
     - If the project is not a Python project, skip this section and do not give any output in this section.
     - Provide recommended test scenarios to ensure the changes work correctly and do not break existing functionality. For example:
         - API endpoint tests for new or changed endpoints
@@ -89,12 +104,44 @@ def create_pull_request_summary(org_name: str, repo_name: str, pr_number: int) -
     Do not forget to include the PR intro (summarized title, author(s), etc.) in the final summary.
     Avoid unnecessary responses and just include summaries in your response, response should be in markdown format (no need to write in code block because your response will send to reply directly)and you can use GitHub Flavored Markdown for better reading experience.
     Ignore all commits that not associated with code programming, such as localization (resx) and markdown file.
+    """
+    # Test prompt
+    full_prompt = PR_prompt + f"""
     PR patch:
     ```
-    {diff_patch}
+    {remove_less_important_changes(diff_patch)}
     ```
     """
-    response = client.models.generate_content(model='gemini-2.0-flash-exp', contents=PR_prompt)
+
+    try:
+        token_count_resp = client.models.count_tokens(
+            model="gemini-2.0-flash-exp",
+            contents=full_prompt,
+        )
+        print(f"Token count: {token_count_resp.total_tokens}; cached_tokens: {token_count_resp.cached_tokens}")
+    except genai.errors.ClientError:
+        # Too long
+        print(f"PR Prompt is too long: {len(full_prompt)}, using pr diff")
+        pr_diff = requests.get(
+            f"https://patch-diff.githubusercontent.com/raw/{org_name}/{repo_name}/pull/{pr_number}.diff").text
+        full_prompt = PR_prompt + f"""
+        PR patch:
+        ```
+        {remove_less_important_changes(pr_diff)}
+        ```
+        """
+        try:
+            token_count_resp = client.models.count_tokens(
+                model="gemini-2.0-flash-exp",
+                contents=full_prompt,
+            )
+            print(f"Token count: {token_count_resp.total_tokens}")
+        except genai.errors.ClientError as e:
+            raise RuntimeError(f"Error: {e}")
+        if token_count_resp.total_tokens > 1000000:
+            raise RuntimeError(f"PR Prompt is too long: {token_count_resp.total_tokens}, please reduce")
+    print("Prompt prepared, generating AI summary...")
+    response = client.models.generate_content(model='gemini-2.0-flash-exp', contents=full_prompt)
     response = response.text
     print(f"AI Summary for {org_name}/{repo_name}#{pr_number}: \n{response}")
     return response

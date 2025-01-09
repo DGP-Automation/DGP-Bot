@@ -57,7 +57,7 @@ We invite you to join our community as a contributor via the links below, so you
 
             # STEP 3: Generate the AI summary
             try:
-                summary_text = create_pull_request_summary(org_name, repo_name, pr_number)
+                summary_text = await create_pull_request_summary(org_name, repo_name, pr_number)
                 if summary_text:
                     # Post the summary as an issue comment
                     return_result += "\n\nAI Summary Generated.\n"
