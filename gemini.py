@@ -118,7 +118,7 @@ async def create_pull_request_summary(org_name: str, repo_name: str, pr_number: 
             model="gemini-2.0-flash-exp",
             contents=full_prompt,
         )
-        print(f"Token count: {token_count_resp.total_tokens}; cached_tokens: {token_count_resp.cached_tokens}")
+        print(f"Token count: {token_count_resp.total_tokens}")
     except genai.errors.ClientError:
         # Too long
         print(f"PR Prompt is too long: {len(full_prompt)}, using pr diff")
