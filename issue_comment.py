@@ -1,4 +1,5 @@
 import re
+from datetime import datetime, timezone, timedelta
 from gemini import create_pull_request_summary
 from config import AUTHORIZED_LEVEL
 from dgp_utils.dgp_tools import *
@@ -28,7 +29,14 @@ async def comment_handler(payload: dict) -> str:
             print("Pulling log for device: ", device_id)
             dumped_log = get_log(device_id)
             if dumped_log["data"]:
-                data = f"device_id: {device_id} \n```\n{dumped_log['data'][0]['Info']}\n```"
+                log_data = ""
+                for this_log in dumped_log["data"]:
+                    this_log_data = this_log["Info"].replace(r'\n', '\n').replace(r'\r', '\r')
+                    log_time = datetime.fromtimestamp(this_log["Time"] / 1000, tz=timezone.utc) + timedelta(hours=8)
+                    log_time = log_time.strftime('%Y-%m-%d %H:%M:%S') + " (UTC+8)"
+                    this_log_data = f"\n**{log_time}**\n```\n{this_log_data}\n```\n"
+                    log_data += this_log_data
+                data = f"device_id: {device_id} \n{log_data}"
                 return_result += make_issue_comment(full_repo_name, issue_number, data)
             else:
                 return_result += make_issue_comment(full_repo_name, issue_number, f"> {comment_body}\n\n无已捕获的错误日志")

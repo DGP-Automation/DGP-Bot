@@ -1,5 +1,5 @@
 import re
-
+from datetime import datetime, timezone, timedelta
 from dgp_utils.dgp_tools import *
 from operater import *
 
@@ -31,7 +31,9 @@ def log_dump(body: str) -> dict:
             log_data = ""
             for this_log in log_dict["data"]:
                 this_log_data = this_log["Info"].replace(r'\n', '\n').replace(r'\r', '\r')
-                this_log_data = f"\n```\n{this_log_data}\n```\n"
+                log_time = datetime.fromtimestamp(this_log["Time"] / 1000, tz=timezone.utc) + timedelta(hours=8)
+                log_time = log_time.strftime('%Y-%m-%d %H:%M:%S') + " (UTC+8)"
+                this_log_data = f"\n**{log_time}**\n```\n{this_log_data}\n```\n"
                 log_data += this_log_data
             data = f"device_id: {device_id} \n{log_data}"
             return {"code": 1, "device_id": device_id, "data": data}
