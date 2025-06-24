@@ -99,10 +99,10 @@ async def create_pull_request_summary(org_name: str, repo_name: str, pr_number: 
     2. Changes by feature (bullet points grouped by relevant file or router)
     3. Key Change Highlights (focus on major or structural changes)
     4. Suggested Test Method (recommended test scenarios)
+    5. Your response should only contain your summary, without any additional text or explanation. The summary needs to be written in GitHub-flavored markdown raw format, Don't use code-block to wrap the markdown raw content.
 
     You can find all the commits and changed files in the PR description and patch. Please summarize the changes accordingly. 
     Do not forget to include the PR intro (summarized title, author(s), etc.) in the final summary.
-    Avoid unnecessary responses and just include summaries in your response, response should be in markdown format (no need to write in code block because your response will send to reply directly)and you can use GitHub Flavored Markdown for better reading experience.
     Ignore all commits that not associated with code programming, such as localization (resx) and markdown file.
     """
     # Test prompt
